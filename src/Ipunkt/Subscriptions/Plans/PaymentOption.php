@@ -1,5 +1,8 @@
 <?php namespace Ipunkt\Subscriptions\Plans;
 
+use DateInterval;
+use Illuminate\Support\Contracts\ArrayableInterface;
+
 /**
  * Class PaymentOption
  *
@@ -7,7 +10,7 @@
  *
  * @package Ipunkt\Subscriptions\Plans
  */
-class PaymentOption
+class PaymentOption implements ArrayableInterface
 {
 	/**
 	 * payment
@@ -66,7 +69,7 @@ class PaymentOption
 	 *
 	 * @return float
 	 */
-	public function getPrice()
+	public function price()
 	{
 		return $this->price;
 	}
@@ -76,7 +79,7 @@ class PaymentOption
 	 *
 	 * @return int
 	 */
-	public function getQuantity()
+	public function quantity()
 	{
 		return $this->quantity;
 	}
@@ -84,10 +87,25 @@ class PaymentOption
 	/**
 	 * returns Interval
 	 *
-	 * @return string
+	 * @return DateInterval
 	 */
-	public function getInterval()
+	public function interval()
 	{
-		return $this->interval;
+		return new DateInterval($this->interval);
+	}
+
+	/**
+	 * Get the instance as an array.
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		return [
+			'payment' => $this->payment(),
+			'price' => $this->price(),
+			'quantity' => $this->quantity(),
+			'interval' => $this->interval,
+		];
 	}
 }

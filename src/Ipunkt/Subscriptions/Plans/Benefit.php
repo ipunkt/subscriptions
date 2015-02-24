@@ -1,5 +1,7 @@
 <?php namespace Ipunkt\Subscriptions\Plans;
 
+use Illuminate\Support\Contracts\ArrayableInterface;
+
 /**
  * Class Benefit
  *
@@ -7,7 +9,7 @@
  *
  * @package Ipunkt\Subscriptions\Plans
  */
-class Benefit
+class Benefit implements ArrayableInterface
 {
 	/**
 	 * benefit feature
@@ -74,5 +76,19 @@ class Benefit
 			return $this->min <= $value;
 
 		return $this->min <= $value && $this->max >= $value;
+	}
+
+	/**
+	 * Get the instance as an array.
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		return [
+			'feature' => $this->feature(),
+			'min' => $this->min,
+			'max' => $this->max,
+		];
 	}
 }

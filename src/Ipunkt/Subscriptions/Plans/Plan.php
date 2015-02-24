@@ -1,6 +1,7 @@
 <?php namespace Ipunkt\Subscriptions\Plans;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Contracts\ArrayableInterface;
 
 /**
  * Class Plan
@@ -9,7 +10,7 @@ use Illuminate\Support\Collection;
  *
  * @package Ipunkt\Subscriptions\Plans
  */
-class Plan
+class Plan implements ArrayableInterface
 {
 	/**
 	 * id
@@ -143,7 +144,8 @@ class Plan
 	 *
 	 * @return bool
 	 */
-	public function can($feature, $value = null) {
+	public function can($feature, $value = null)
+	{
 		$f = $this->benefits()->first(function ($key, Benefit $benefit) use ($feature) {
 			return $benefit->feature() === strtoupper($feature);
 		});
@@ -158,8 +160,7 @@ class Plan
 	 */
 	private function addBenefits(array $benefits)
 	{
-		foreach ($benefits as $feature => $benefit)
-		{
+		foreach ($benefits as $feature => $benefit) {
 			$min = array_get($benefit, 'min', null);
 			$max = array_get($benefit, 'max', null);
 
@@ -184,8 +185,7 @@ class Plan
 	 */
 	private function addPaymentOptions(array $payments)
 	{
-		foreach ($payments as $payment => $options)
-		{
+		foreach ($payments as $payment => $options) {
 			$price = array_get($options, 'price', 0.0);
 			$quantity = array_get($options, 'quantity', 1);
 			$interval = array_get($options, 'interval', 'P1M');
@@ -202,5 +202,21 @@ class Plan
 	private function addPaymentOption(PaymentOption $paymentOption)
 	{
 		$this->paymentOptions->put($paymentOption->payment(), $paymentOption);
+	}
+
+	/**
+	 * Get the instance as an array.
+	 *
+	 * @return array
+	 */
+	public function toArray()
+	{
+		return [
+			'id' => $this->id(),
+			'name' => $this->name(),
+			'description' => $this->description(),
+			'benefits' => $this->benefits()->toArray(),
+			'paymentOptions' => $this->paymentOptions()->toArray(),
+		];
 	}
 }

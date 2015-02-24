@@ -1,7 +1,6 @@
 <?php namespace Ipunkt\Subscriptions\Plans;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Config;
 
 /**
  * Class PlanRepository
@@ -32,17 +31,24 @@ class PlanRepository
 	/**
 	 * returns all plans
 	 *
-	 * @return array|Plan[]|Collection
+	 * @return Plan[]|Collection
 	 */
 	public function all()
 	{
-		return $this->plans->all();
+		return $this->plans;
 	}
 
+	/**
+	 * find a plan by id
+	 *
+	 * @param string $id
+	 *
+	 * @return mixed|null
+	 */
 	public function find($id)
 	{
 		return $this->plans->first(function ($key, $value) use ($id) {
-			return $id === $key;
+			return strtoupper($id) === $key;
 		});
 	}
 
