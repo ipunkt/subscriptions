@@ -1,6 +1,7 @@
 <?php namespace Ipunkt\Subscriptions\Subscription;
 
 use Illuminate\Database\Eloquent\Model;
+use Laracasts\Commander\Events\EventGenerator;
 
 /**
  * Class Subscription
@@ -28,6 +29,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Subscription extends Model
 {
+	use EventGenerator;
+
 	/**
 	 * The attributes that are mass assignable.
 	 *
@@ -36,6 +39,7 @@ class Subscription extends Model
 	protected $fillable = [
 		'model_id',
 		'model_class',
+		'plan',
 	];
 
 	/**

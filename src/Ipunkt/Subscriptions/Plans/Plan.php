@@ -208,6 +208,23 @@ class Plan implements ArrayableInterface
 	}
 
 	/**
+	 * finds payment option by identifier
+	 *
+	 * @param string $paymentOption
+	 *
+	 * @return PaymentOption|null
+	 */
+	public function findPaymentOption($paymentOption)
+	{
+		$paymentOption = strtoupper($paymentOption);
+
+		return $this->paymentOptions()->first(function ($index, PaymentOption $p) use ($paymentOption) {
+			if ($p->payment() == $paymentOption)
+				return $p;
+		});
+	}
+
+	/**
 	 * is this plan a free plan
 	 *
 	 * @return bool

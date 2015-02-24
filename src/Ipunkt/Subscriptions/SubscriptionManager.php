@@ -1,7 +1,9 @@
 <?php namespace Ipunkt\Subscriptions;
 
+use Ipunkt\Subscriptions\Plans\PaymentOption;
 use Ipunkt\Subscriptions\Plans\Plan;
 use Ipunkt\Subscriptions\Plans\PlanRepository;
+use Ipunkt\Subscriptions\Subscription\Contracts\SubscriptionSubscriber;
 use Ipunkt\Subscriptions\Subscription\SubscriptionRepository;
 
 /**
@@ -94,5 +96,25 @@ class SubscriptionManager
 			return false;
 
 		return $currentPlan->can($feature, $value);
+	}
+
+	/**
+	 * creates a subscription with plan and payment option
+	 *
+	 * @param string|Plan $plan
+	 * @param string|PaymentOption $paymentOption
+	 * @param SubscriptionSubscriber $subscriber
+	 *
+	 * @return \Ipunkt\Subscriptions\Subscription\Subscription
+	 */
+	public function create($plan, $paymentOption, SubscriptionSubscriber $subscriber)
+	{
+		if ( ! $plan instanceof Plan)
+			$plan = $this->findPlan($plan);
+
+		if ( ! $paymentOption instanceof PaymentOption)
+			$paymentOption = $plan->findPaymentOption($paymentOption);
+
+		return $this->subscriptionRepository->create($plan, $paymentOption, $subscriber);
 	}
 }

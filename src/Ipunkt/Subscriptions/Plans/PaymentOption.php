@@ -99,7 +99,17 @@ class PaymentOption implements ArrayableInterface
 	 */
 	public function days()
 	{
-		return $this->quantity() * $this->days;
+		return $this->quantity() * $this->period();
+	}
+
+	/**
+	 * returns days per period
+	 *
+	 * @return int
+	 */
+	public function period()
+	{
+		return $this->days;
 	}
 
 	/**

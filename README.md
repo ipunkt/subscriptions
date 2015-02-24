@@ -107,3 +107,24 @@ Or use the `Subscription` facade instead to check against current subscription p
 
 	/** @var PaymentOption[] $paymentOptions */
 	$paymentOptions = $plan->paymentOptions();
+
+### Creating a new subscription
+
+	/** creating a subscription for a subscriber, maybe the current authenticated user */
+	$subscription = Subscription::create($plan, $paymentOption, SubscriptionSubscriber $subscriber);
+
+For creating a subscription you have to give the `Plan` or the id of a plan and the selected `PaymentOption` 
+ or the identifier for the payment option.
+The `$subscriber` is the entity the subscription belongs to. This can be any morphable eloquent object.
+
+After a subscription was created successfully an event of type
+ `Ipunkt\Subscriptions\Subscription\Events\SubscriptionWasCreated` gets fired.
+
+The underlying repository controls for duplicates itself. So for existing subscriptions it will update the
+ current subscription and fires an event of type `Ipunkt\Subscriptions\Subscription\Events\SubscriptionWasUpdated` 
+ instead.
+
+You can upgrade the subscription to any other plan. The same method `Subscription::create()` handles this upgrade.
+
+The fired events have both the current subscription, the selected plan and the payment option as properties.
+ So you can listen on these events and do your own stuff.
