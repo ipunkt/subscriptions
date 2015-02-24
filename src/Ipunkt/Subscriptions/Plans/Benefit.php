@@ -59,6 +59,26 @@ class Benefit implements ArrayableInterface
 	}
 
 	/**
+	 * returns Min
+	 *
+	 * @return int
+	 */
+	public function min()
+	{
+		return $this->min;
+	}
+
+	/**
+	 * returns Max
+	 *
+	 * @return int|null
+	 */
+	public function max()
+	{
+		return $this->max;
+	}
+
+	/**
 	 * is the feature available
 	 *
 	 * @param null|int $value
