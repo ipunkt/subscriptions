@@ -1,0 +1,20 @@
+{
+    "name": "ipunkt/subscriptions",
+    "description": "Subscription handling package for laravel applications",
+    "authors": [
+        {
+            "name": "Robert Kummer",
+            "email": "rok@ipunkt.biz"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "4.2.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ipunkt\\Subscriptions\\": "src/Ipunkt/Subscriptions"
+        }
+    },
+    "minimum-stability": "stable"
+}
