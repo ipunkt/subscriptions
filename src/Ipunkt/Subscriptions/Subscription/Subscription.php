@@ -24,6 +24,7 @@ use Laracasts\Commander\Events\EventGenerator;
  * @method static \Illuminate\Database\Query\Builder|Subscription whereTrialEndsAt($value)
  * @method static \Illuminate\Database\Query\Builder|Subscription whereSubscriptionEndsAt($value)
  * @method static \Illuminate\Database\Query\Builder|Subscription whereState($value)
+ * @property-read \Illuminate\Database\Eloquent\Model $subscriber
  *
  * @package Ipunkt\Subscriptions\Subscription
  */
@@ -48,4 +49,13 @@ class Subscription extends Model
 	 * @var array
 	 */
 	protected $dates = ['trial_ends_at', 'subscription_ends_at'];
+
+	/**
+	 * returns subscriber
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+	 */
+	public function subscriber() {
+		return $this->morphTo('Company', 'model_class', 'model_id');
+	}
 }
