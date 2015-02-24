@@ -12,6 +12,9 @@ class SubscriptionsServiceProvider extends ServiceProvider
 	 */
 	protected $defer = false;
 
+	/**
+	 * booting the service
+	 */
 	public function boot()
 	{
 		$this->package('ipunkt/subscriptions');
@@ -19,15 +22,10 @@ class SubscriptionsServiceProvider extends ServiceProvider
 		/** @var \Illuminate\Config\Repository $config */
 		$config = $this->app['config'];
 
-		$this->app->bind('SubscriptionManager', function () use ($config) {
-
-			$planRepository = new PlanRepository($config->get('subscriptions::plans'));
-
-			$subscriptionManager = new SubscriptionManager();
-			$subscriptionManager->setPlanRepository($planRepository);
-
-			return $subscriptionManager;
+		$this->app->bind('Ipunkt\Subscriptions\Plans\PlanRepository', function () use ($config) {
+			return new PlanRepository($config->get('subscriptions::plans'));
 		});
+
 	}
 
 	/**
@@ -37,7 +35,6 @@ class SubscriptionsServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-
 	}
 
 	/**

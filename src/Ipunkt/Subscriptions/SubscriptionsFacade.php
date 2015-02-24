@@ -18,6 +18,6 @@ class SubscriptionsFacade extends Facade
 	 */
 	protected static function getFacadeAccessor()
 	{
-		return 'SubscriptionManager';
+		return 'Ipunkt\Subscriptions\SubscriptionManager';
 	}
 }

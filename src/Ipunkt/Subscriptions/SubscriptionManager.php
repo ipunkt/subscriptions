@@ -2,6 +2,7 @@
 
 use Ipunkt\Subscriptions\Plans\Plan;
 use Ipunkt\Subscriptions\Plans\PlanRepository;
+use Ipunkt\Subscriptions\Subscription\SubscriptionRepository;
 
 /**
  * Class SubscriptionManager
@@ -20,13 +21,20 @@ class SubscriptionManager
 	private $planRepository;
 
 	/**
-	 * setting a plan repository
+	 * subscriptions repository
 	 *
-	 * @param PlanRepository $planRepository
+	 * @var SubscriptionRepository
 	 */
-	public function setPlanRepository(PlanRepository $planRepository)
+	private $subscriptionRepository;
+
+	/**
+	 * @param PlanRepository $planRepository
+	 * @param SubscriptionRepository $subscriptionRepository
+	 */
+	public function __construct(PlanRepository $planRepository, SubscriptionRepository $subscriptionRepository)
 	{
 		$this->planRepository = $planRepository;
+		$this->subscriptionRepository = $subscriptionRepository;
 	}
 
 	/**
