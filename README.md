@@ -61,14 +61,14 @@ Add `'Subscription' => 'Ipunkt\Subscriptions\SubscriptionsFacade',` to `aliases`
             'payments' => [
                 [
                     'price' => 1,           // for 1.00
-                    'quantity' => 12,       // in 12
-                    'interval' => 'P1M',    // months
+                    'quantity' => 12,       // in 12-times
+                    'days' => 30,           // of 30-days
                     'methods' => ['paypal'], // allowed payment methods
                 ],
                 [
                     'price' => 2,           // for 2.00
-                    'quantity' => 12,       // in 12
-                    'interval' => 'P1M',    // months
+                    'quantity' => 12,       // in 12-times
+                    'days' => 30,           // of 30-days
                     'methods' => ['paypal', 'invoice'],
                 ],
             ],

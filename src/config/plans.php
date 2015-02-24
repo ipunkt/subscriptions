@@ -21,8 +21,8 @@
  *     'payments' => [
  *       PAYMENT-ID => [
  *         'price' => 1,           // for 1.00
- *         'quantity' => 12,       // in 12
- *         'interval' => 'P1M',    // 1-months
+ *         'quantity' => 12,       // in 12 periods of
+ *         'days' => 30,           // 30-days
  *         // It is recommended that you use 1 within the interval definition and multiply with the quantity value
  *       ],
  *     ],
@@ -50,14 +50,14 @@ return [
 		'payments' => [
 			[
 				'price' => 1,           // for 1.00
-				'quantity' => 12,       // in 12
-				'interval' => 'P1M',    // months
+				'quantity' => 12,       // in 12-times
+				'days' => 30,           // of 30-days
 				'methods' => ['paypal'],
 			],
 			[
 				'price' => 2,           // for 2.00
-				'quantity' => 12,       // in 12
-				'interval' => 'P1M',    // months
+				'quantity' => 12,       // in 12-times
+				'days' => 30,           // of 30-days
 				'methods' => ['paypal', 'invoice'],
 			],
 		],
