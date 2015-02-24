@@ -12,7 +12,27 @@ Add to your composer.json following lines
 
 Run `php artisan config:publish ipunkt/subscriptions`
 
+Then edit `plans.php` in `app/config/packages/ipunkt/subscriptions` to your needs. All known plans are still in there.
+
 Add `'Ipunkt\Subscriptions\SubscriptionsServiceProvider',` to `providers` in `app/config/app.php`.
 
 Add `'Subscription' => 'Ipunkt\Subscriptions\SubscriptionsFacade',` to `aliases` in `app/config/app.php`.
+
+## Configuration
+
+### Plan configuration
+
+TODO
+
+## Usage
+
+### Getting all plans
+
+	/** @var Plan[] $plans */
+	$plans = Subscription::plans();
+
+### Getting the current plan
+
+	/** @var Plan|null $plan */
+	$plan = Subscription::plan();
 
