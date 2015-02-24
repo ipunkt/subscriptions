@@ -68,6 +68,18 @@ class SubscriptionManager
 	}
 
 	/**
+	 * tries to find a plan
+	 *
+	 * @param string $plan
+	 *
+	 * @return Plan|null
+	 */
+	public function findPlan($plan)
+	{
+		return $this->planRepository->find($plan);
+	}
+
+	/**
 	 * feature check on the current subscription
 	 *
 	 * @param string $feature
