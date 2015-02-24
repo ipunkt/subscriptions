@@ -185,8 +185,9 @@ class Plan implements ArrayableInterface
 	 */
 	private function addPaymentOptions(array $payments)
 	{
+		$p = 0;
 		foreach ($payments as $options) {
-			$payment = array_get($options, 'payment', '');
+			$payment = array_get($options, 'payment', $p++);
 			$price = array_get($options, 'price', 0.0);
 			$quantity = array_get($options, 'quantity', 1);
 			$interval = array_get($options, 'days', 1);
