@@ -1,6 +1,5 @@
 <?php namespace Ipunkt\Subscriptions\Plans;
 
-use DateInterval;
 use Illuminate\Support\Contracts\ArrayableInterface;
 
 /**
@@ -34,11 +33,11 @@ class PaymentOption implements ArrayableInterface
 	private $quantity;
 
 	/**
-	 * interval
+	 * days
 	 *
-	 * @var string
+	 * @var int
 	 */
-	private $interval;
+	private $days;
 
 	/**
 	 * payment methods
@@ -51,15 +50,15 @@ class PaymentOption implements ArrayableInterface
 	 * @param string $payment
 	 * @param float $price
 	 * @param int $quantity
-	 * @param string $interval
+	 * @param int $days
 	 * @param array $methods
 	 */
-	public function __construct($payment, $price, $quantity = 1, $interval = 'P1M', array $methods = [])
+	public function __construct($payment, $price, $quantity = 1, $days = 30, array $methods = [])
 	{
 		$this->payment = strtoupper($payment);
 		$this->price = $price;
 		$this->quantity = $quantity;
-		$this->interval = $interval;
+		$this->days = $days;
 		$this->methods = array_map('strtolower', $methods);
 	}
 
@@ -94,13 +93,13 @@ class PaymentOption implements ArrayableInterface
 	}
 
 	/**
-	 * returns Interval
+	 * returns number of days
 	 *
-	 * @return DateInterval
+	 * @return int
 	 */
-	public function interval()
+	public function days()
 	{
-		return new DateInterval($this->interval);
+		return $this->quantity() * $this->days;
 	}
 
 	/**
@@ -136,7 +135,7 @@ class PaymentOption implements ArrayableInterface
 			'payment' => $this->payment(),
 			'price' => $this->price(),
 			'quantity' => $this->quantity(),
-			'interval' => $this->interval,
+			'days' => $this->days,
 			'methods' => $this->methods(),
 		];
 	}

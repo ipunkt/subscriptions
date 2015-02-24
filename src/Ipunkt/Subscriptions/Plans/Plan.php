@@ -189,7 +189,7 @@ class Plan implements ArrayableInterface
 			$payment = array_get($options, 'payment', '');
 			$price = array_get($options, 'price', 0.0);
 			$quantity = array_get($options, 'quantity', 1);
-			$interval = array_get($options, 'interval', 'P1M');
+			$interval = array_get($options, 'days', 1);
 			$methods = array_get($options, 'methods', []);
 
 			$this->addPaymentOption(new PaymentOption($payment, $price, $quantity, $interval, $methods));
