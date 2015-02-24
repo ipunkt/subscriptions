@@ -48,4 +48,21 @@ class SubscriptionManager
 	{
 		return $this->planRepository->find('');
 	}
+
+	/**
+	 * feature check on the current subscription
+	 *
+	 * @param string $feature
+	 * @param null|int $value
+	 *
+	 * @return bool
+	 */
+	public function can($feature, $value = null)
+	{
+		$currentPlan = $this->plan();
+		if (null === $currentPlan)
+			return false;
+
+		return $currentPlan->can($feature, $value);
+	}
 }

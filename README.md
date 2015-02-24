@@ -69,3 +69,8 @@ Add `'Subscription' => 'Ipunkt\Subscriptions\SubscriptionsFacade',` to `aliases`
 
 	$plan->can('feature');               // returns true or false
 	$plan->can('countable-feature', 14); // returns true or false
+
+Or use the `Subscription` facade instead to check against current subscription plan. This is recommended:
+
+	Subscription::can('feature');               // returns true or false
+	Subscription::can('countable-feature', 14); // returns true or false
