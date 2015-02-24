@@ -18,7 +18,7 @@ Add `'Ipunkt\Subscriptions\SubscriptionsServiceProvider',` to `providers` in `ap
 
 Add `'Subscription' => 'Ipunkt\Subscriptions\SubscriptionsFacade',` to `aliases` in `app/config/app.php`.
 
-Run `php artisan migrate:rollback --package=ipunkt/subscriptions` to migrate the necessary database tables.
+Run `php artisan migrate --package=ipunkt/subscriptions` to migrate the necessary database tables.
 
 ## Configuration
 
