@@ -40,6 +40,13 @@ class Plan
 	private $benefits;
 
 	/**
+	 * collection of plan payment options
+	 *
+	 * @var PaymentOption[]|Collection
+	 */
+	private $paymentOptions;
+
+	/**
 	 * @param string $id
 	 * @param string $name
 	 * @param string $description
@@ -51,6 +58,7 @@ class Plan
 		$this->description = $description;
 
 		$this->benefits = new Collection();
+		$this->paymentOptions = new Collection();
 	}
 
 	/**
@@ -67,6 +75,10 @@ class Plan
 
 		if (array_key_exists('benefits', $planData)) {
 			$plan->addBenefits($planData['benefits']);
+		}
+
+		if (array_key_exists('payments', $planData)) {
+			$plan->addPaymentOptions($planData['payments']);
 		}
 
 		return $plan;
@@ -105,11 +117,21 @@ class Plan
 	/**
 	 * returns the collection of benefits
 	 *
-	 * @return Benefit[]|Collection
+	 * @return Collection|Benefit[]
 	 */
 	public function benefits()
 	{
 		return $this->benefits;
+	}
+
+	/**
+	 * returns the collection of payment options
+	 *
+	 * @return Collection|PaymentOption[]
+	 */
+	public function paymentOptions()
+	{
+		return $this->paymentOptions;
 	}
 
 	/**
@@ -130,20 +152,6 @@ class Plan
 	}
 
 	/**
-	 * adds a benefit to the list
-	 *
-	 * @param \Ipunkt\Subscriptions\Plans\Benefit $benefit
-	 *
-	 * @return $this
-	 */
-	private function addBenefit(Benefit $benefit)
-	{
-		$this->benefits->push($benefit);
-
-		return $this;
-	}
-
-	/**
 	 * add benefits from array
 	 *
 	 * @param array $benefits
@@ -152,10 +160,47 @@ class Plan
 	{
 		foreach ($benefits as $feature => $benefit)
 		{
-			$min = array_key_exists('min', $benefit) ? $benefit['min'] : null;
-			$max = array_key_exists('max', $benefit) ? $benefit['max'] : null;
+			$min = array_get($benefit, 'min', null);
+			$max = array_get($benefit, 'max', null);
 
 			$this->addBenefit(new Benefit($feature, $min, $max));
 		}
+	}
+
+	/**
+	 * adds a benefit to the list
+	 *
+	 * @param \Ipunkt\Subscriptions\Plans\Benefit $benefit
+	 */
+	private function addBenefit(Benefit $benefit)
+	{
+		$this->benefits->put($benefit->feature(), $benefit);
+	}
+
+	/**
+	 * add payment options
+	 *
+	 * @param array $payments
+	 */
+	private function addPaymentOptions(array $payments)
+	{
+		foreach ($payments as $payment => $options)
+		{
+			$price = array_get($options, 'price', 0.0);
+			$quantity = array_get($options, 'quantity', 1);
+			$interval = array_get($options, 'interval', 'P1M');
+
+			$this->addPaymentOption(new PaymentOption($payment, $price, $quantity, $interval));
+		}
+	}
+
+	/**
+	 * adds a payment option to the list
+	 *
+	 * @param \Ipunkt\Subscriptions\Plans\PaymentOption $paymentOption
+	 */
+	private function addPaymentOption(PaymentOption $paymentOption)
+	{
+		$this->paymentOptions->put($paymentOption->payment(), $paymentOption);
 	}
 }

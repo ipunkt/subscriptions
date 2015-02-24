@@ -8,11 +8,22 @@
  *     'name' => Name of the plan,
  *     'description' => Description of the plan,
  *
+ *     //  optional entry
  *     'benefits' => [
  *       FEATURE-NAME => [], // feature present, or:
  *       FEATURE-NAME => [
  *         'min' => 0,    // default, minimum margin value, optional
  *         'max' => null, // default, maximum margin value, optional, unbounded by default
+ *       ],
+ *     ],
+ *
+ *     //  required entry
+ *     'payments' => [
+ *       PAYMENT-ID => [
+ *         'price' => 1,           // for 1.00
+ *         'quantity' => 12,       // in 12
+ *         'interval' => 'P1M',    // 1-months
+ *         // It is recommended that you use 1 within the interval definition and multiply with the quantity value
  *       ],
  *     ],
  *   ],
@@ -32,6 +43,19 @@ return [
 			'feature-3-countable' => [
 				'min' => 10,
 				'max' => 50,
+			],
+		],
+
+		'payments' => [
+			'paypal' => [
+				'price' => 1,           // for 1.00
+				'quantity' => 12,       // in 12
+				'interval' => 'P1M',    // months
+			],
+			'invoice' => [
+				'price' => 2,           // for 2.00
+				'quantity' => 12,       // in 12
+				'interval' => 'P1M',    // months
 			],
 		],
 	],

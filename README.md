@@ -52,6 +52,26 @@ Add `'Subscription' => 'Ipunkt\Subscriptions\SubscriptionsFacade',` to `aliases`
     	],
     ];
 
+#### Payment options for a plan
+
+	//  @see src/config/plans.php
+    return [
+        'PLAN-ID' => [
+            // [..]    		
+            'payments' => [
+                'paypal' => [
+                    'price' => 1,           // for 1.00
+                    'quantity' => 12,       // in 12
+                    'interval' => 'P1M',    // months
+                ],
+                'invoice' => [
+                    'price' => 2,           // for 2.00
+                    'quantity' => 12,       // in 12
+                    'interval' => 'P1M',    // months
+                ],
+            ],
+        ],
+    ];
 
 ## Usage
 
@@ -74,3 +94,8 @@ Or use the `Subscription` facade instead to check against current subscription p
 
 	Subscription::can('feature');               // returns true or false
 	Subscription::can('countable-feature', 14); // returns true or false
+
+### Getting all possible payment options for a plan
+
+	/** @var PaymentOption[] $paymentOptions */
+	$paymentOptions = $plan->paymentOptions();
