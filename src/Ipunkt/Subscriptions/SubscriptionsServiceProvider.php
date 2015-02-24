@@ -1,6 +1,7 @@
 <?php namespace Ipunkt\Subscriptions;
 
 use Illuminate\Support\ServiceProvider;
+use Ipunkt\Subscriptions\Plans\PlanRepository;
 
 class SubscriptionsServiceProvider extends ServiceProvider
 {
@@ -14,6 +15,19 @@ class SubscriptionsServiceProvider extends ServiceProvider
 	public function boot()
 	{
 		$this->package('ipunkt/subscriptions');
+
+		/** @var \Illuminate\Config\Repository $config */
+		$config = $this->app['config'];
+
+		$this->app->bind('SubscriptionManager', function () use ($config) {
+
+			$planRepository = new PlanRepository($config->get('subscriptions::plans'));
+
+			$subscriptionManager = new SubscriptionManager();
+			$subscriptionManager->setPlanRepository($planRepository);
+
+			return $subscriptionManager;
+		});
 	}
 
 	/**
@@ -23,9 +37,7 @@ class SubscriptionsServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-		$this->app->bind('SubscriptionManager', function () {
-			return new SubscriptionManager();
-		});
+
 	}
 
 	/**
