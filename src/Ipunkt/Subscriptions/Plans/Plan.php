@@ -207,6 +207,18 @@ class Plan implements ArrayableInterface
 	}
 
 	/**
+	 * is this plan a free plan
+	 *
+	 * @return bool
+	 */
+	public function isFree()
+	{
+		return $this->paymentOptions()->filter(function (PaymentOption $paymentOption) {
+			return $paymentOption->price() != 0;
+		})->isEmpty();
+	}
+
+	/**
 	 * Get the instance as an array.
 	 *
 	 * @return array
