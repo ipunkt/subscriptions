@@ -22,7 +22,36 @@ Add `'Subscription' => 'Ipunkt\Subscriptions\SubscriptionsFacade',` to `aliases`
 
 ### Plan configuration
 
-TODO
+	//  @see src/config/plans.php
+	return [
+    	'PLAN-ID' => [
+    		'name' => 'TRIAL',
+    		'description' => 'Trial subscription.',
+    	],
+    ];
+
+#### Benefit configuration for a plan
+
+	//  @see src/config/plans.php
+	return [
+    	'PLAN-ID' => [
+    		// [..]    		
+			'benefits' => [
+				'feature-1' => [],  // feature is present
+				'feature-2-countable' => [
+					'min' => 10,    // feature is present and has margins/countable range
+				],
+				'feature-3-countable' => [
+					'min' => 10,
+					'max' => 50,
+				],
+				'feature-4-countable' => [
+					'max' => 50,    // min is automatically 0 (zero)
+				],
+			],
+    	],
+    ];
+
 
 ## Usage
 
@@ -36,3 +65,7 @@ TODO
 	/** @var Plan|null $plan */
 	$plan = Subscription::plan();
 
+### Each plan can have benefits (features)
+
+	$plan->can('feature');               // returns true or false
+	$plan->can('countable-feature', 14); // returns true or false

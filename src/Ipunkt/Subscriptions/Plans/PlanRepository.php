@@ -53,9 +53,9 @@ class PlanRepository
 	 */
 	private function resolvePlans(array $config)
 	{
-		foreach ($config as $id => $planData)
-		{
+		foreach ($config as $id => $planData) {
 			$plan = Plan::createFromArray($id, $planData);
+
 			$this->plans->put($id, $plan);
 		}
 	}
