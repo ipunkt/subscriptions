@@ -185,12 +185,14 @@ class Plan implements ArrayableInterface
 	 */
 	private function addPaymentOptions(array $payments)
 	{
-		foreach ($payments as $payment => $options) {
+		foreach ($payments as $options) {
+			$payment = array_get($options, 'payment', '');
 			$price = array_get($options, 'price', 0.0);
 			$quantity = array_get($options, 'quantity', 1);
 			$interval = array_get($options, 'interval', 'P1M');
+			$methods = array_get($options, 'methods', []);
 
-			$this->addPaymentOption(new PaymentOption($payment, $price, $quantity, $interval));
+			$this->addPaymentOption(new PaymentOption($payment, $price, $quantity, $interval, $methods));
 		}
 	}
 
@@ -201,7 +203,7 @@ class Plan implements ArrayableInterface
 	 */
 	private function addPaymentOption(PaymentOption $paymentOption)
 	{
-		$this->paymentOptions->put($paymentOption->payment(), $paymentOption);
+		$this->paymentOptions->push($paymentOption);
 	}
 
 	/**

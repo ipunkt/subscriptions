@@ -31,6 +31,7 @@
  *
  */
 return [
+/*
 	'PLAN-ID' => [
 		'name' => 'TRIAL',
 		'description' => 'Das ist ein Testvertrag.',
@@ -47,16 +48,19 @@ return [
 		],
 
 		'payments' => [
-			'paypal' => [
+			[
 				'price' => 1,           // for 1.00
 				'quantity' => 12,       // in 12
 				'interval' => 'P1M',    // months
+				'methods' => ['paypal'],
 			],
-			'invoice' => [
+			[
 				'price' => 2,           // for 2.00
 				'quantity' => 12,       // in 12
 				'interval' => 'P1M',    // months
+				'methods' => ['paypal', 'invoice'],
 			],
 		],
 	],
+*/
 ];

@@ -59,15 +59,17 @@ Add `'Subscription' => 'Ipunkt\Subscriptions\SubscriptionsFacade',` to `aliases`
         'PLAN-ID' => [
             // [..]    		
             'payments' => [
-                'paypal' => [
+                [
                     'price' => 1,           // for 1.00
                     'quantity' => 12,       // in 12
                     'interval' => 'P1M',    // months
+                    'methods' => ['paypal'], // allowed payment methods
                 ],
-                'invoice' => [
+                [
                     'price' => 2,           // for 2.00
                     'quantity' => 12,       // in 12
                     'interval' => 'P1M',    // months
+                    'methods' => ['paypal', 'invoice'],
                 ],
             ],
         ],

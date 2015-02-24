@@ -41,17 +41,26 @@ class PaymentOption implements ArrayableInterface
 	private $interval;
 
 	/**
+	 * payment methods
+	 *
+	 * @var array
+	 */
+	private $methods;
+
+	/**
 	 * @param string $payment
 	 * @param float $price
 	 * @param int $quantity
 	 * @param string $interval
+	 * @param array $methods
 	 */
-	public function __construct($payment, $price, $quantity = 1, $interval = 'P1M')
+	public function __construct($payment, $price, $quantity = 1, $interval = 'P1M', array $methods = [])
 	{
 		$this->payment = strtoupper($payment);
 		$this->price = $price;
 		$this->quantity = $quantity;
 		$this->interval = $interval;
+		$this->methods = array_map('strtolower', $methods);
 	}
 
 	/**
@@ -95,6 +104,28 @@ class PaymentOption implements ArrayableInterface
 	}
 
 	/**
+	 * returns all methods
+	 *
+	 * @return array
+	 */
+	public function methods()
+	{
+		return $this->methods;
+	}
+
+	/**
+	 * do we support a method
+	 *
+	 * @param string $method
+	 *
+	 * @return bool
+	 */
+	public function supportsMethod($method)
+	{
+		return in_array(strtolower($method), $this->methods());
+	}
+
+	/**
 	 * Get the instance as an array.
 	 *
 	 * @return array
@@ -106,6 +137,7 @@ class PaymentOption implements ArrayableInterface
 			'price' => $this->price(),
 			'quantity' => $this->quantity(),
 			'interval' => $this->interval,
+			'methods' => $this->methods(),
 		];
 	}
 }
