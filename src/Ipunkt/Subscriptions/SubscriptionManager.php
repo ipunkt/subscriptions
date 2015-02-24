@@ -30,6 +30,16 @@ class SubscriptionManager
 	}
 
 	/**
+	 * does a subscription already exists
+	 *
+	 * @return bool
+	 */
+	public function exists()
+	{
+		return $this->plan() !== null;
+	}
+
+	/**
 	 * returns all configured plans
 	 *
 	 * @return array|Plan[]

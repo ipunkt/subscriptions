@@ -87,6 +87,10 @@ Add `'Subscription' => 'Ipunkt\Subscriptions\SubscriptionsFacade',` to `aliases`
 	/** @var Plan|null $plan */
 	$plan = Subscription::plan();
 
+### Does a subscription already exists
+
+	Subscription::exists(); // returns true when a subscription exists
+
 ### Each plan can have benefits (features)
 
 	$plan->can('feature');               // returns true or false
