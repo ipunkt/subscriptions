@@ -71,17 +71,15 @@ class SubscriptionRepository
 	{
 		$subscription->model_id = $subscriber->getSubscriberId();
 		$subscription->model_class = $subscriber->getSubscriberModel();
+		$subscription->plan = $plan->id();
 
 		$subscriptionData = $subscription->toArray();
 		if (isset($subscriptionData['created_at'])) unset($subscriptionData['created_at']);
 		if (isset($subscriptionData['updated_at'])) unset($subscriptionData['updated_at']);
-		$subscriptionData['plan'] = $plan->id();
 
-		$subscription = Subscription::firstOrNew($subscriptionData);
-		if ($subscription->exists)
-			return $this->saveSubscription($subscription, $plan, $paymentOption);
+		$newSubscription = Subscription::firstOrNew($subscriptionData);
 
-		return $this->saveSubscription($subscription, $plan, $paymentOption, $subscription->subscription_ends_at);
+		return $this->saveSubscription($newSubscription, $plan, $paymentOption, $subscription->subscription_ends_at);
 	}
 
 	/**
