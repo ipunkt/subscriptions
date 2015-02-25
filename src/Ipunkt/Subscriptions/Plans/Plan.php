@@ -263,4 +263,19 @@ class Plan implements ArrayableInterface
 			'paymentOptions' => $this->paymentOptions()->toArray(),
 		];
 	}
+
+	/**
+	 * compare plan with another plan by id or instance
+	 *
+	 * @param string|Plan $plan
+	 *
+	 * @return bool
+	 */
+	public function isEqual($plan)
+	{
+		if ($plan instanceof Plan)
+			$plan = $plan->id();
+
+		return $plan === $this->id();
+	}
 }
