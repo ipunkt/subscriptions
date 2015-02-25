@@ -72,4 +72,14 @@ class Subscription extends Model
 		return $this->model_id == $subscriber->getSubscriberId()
 			&& $this->model_class == $subscriber->getSubscriberModel();
 	}
+
+	/**
+	 * are we on trial period
+	 *
+	 * @return bool
+	 */
+	public function onTrial()
+	{
+		return $this->trial_ends_at->isFuture();
+	}
 }
