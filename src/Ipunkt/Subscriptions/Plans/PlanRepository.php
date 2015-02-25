@@ -19,6 +19,13 @@ class PlanRepository
 	private $plans;
 
 	/**
+	 * default plan
+	 *
+	 * @var null|Plan
+	 */
+	private $defaultPlan;
+
+	/**
 	 * @param array $config
 	 */
 	public function __construct(array $config)
@@ -43,13 +50,42 @@ class PlanRepository
 	 *
 	 * @param string $id
 	 *
-	 * @return mixed|null
+	 * @return Plan|null
 	 */
 	public function find($id)
 	{
 		return $this->plans->first(function ($key, $value) use ($id) {
 			return strtoupper($id) === $key;
 		});
+	}
+
+	/**
+	 * returns default Plan
+	 *
+	 * @return Plan|null
+	 */
+	public function defaultPlan()
+	{
+		return $this->defaultPlan;
+	}
+
+	/**
+	 * sets default Plan
+	 *
+	 * @param string $defaultPlan
+	 *
+	 * @return $this
+	 */
+	public function setDefaultPlan($defaultPlan)
+	{
+		if (empty($defaultPlan))
+			return $this;
+
+		$plan = $this->find($defaultPlan);
+		if (null !== $plan)
+			$this->defaultPlan = $plan;
+
+		return $this;
 	}
 
 	/**

@@ -77,6 +77,11 @@ Run `php artisan migrate --package=ipunkt/subscriptions` to migrate the necessar
         ],
     ];
 
+#### Choosing a default plan for all subscribers
+
+For setting a default plan to all subscribers you can use the `src/config/defaults.php` and set the id for the default
+ plan. So every call on plan-based feature checking will resolve this default plan when the subscriber has no plan yet.
+
 ## Usage
 
 ### Getting all plans

@@ -56,7 +56,7 @@ class SubscriptionManager
 	 */
 	public function exists(SubscriptionSubscriber $subscriber)
 	{
-		return $this->plan($subscriber) !== null;
+		return $this->plan($subscriber, false) !== null;
 	}
 
 	/**
@@ -73,14 +73,18 @@ class SubscriptionManager
 	 * returns the current plan
 	 *
 	 * @param SubscriptionSubscriber $subscriber
+	 * @param bool $useDefaultPlan
 	 *
 	 * @return \Ipunkt\Subscriptions\Plans\Plan|null
 	 */
-	public function plan(SubscriptionSubscriber $subscriber)
+	public function plan(SubscriptionSubscriber $subscriber, $useDefaultPlan = true)
 	{
 		$subscription = $this->current($subscriber);
-		if (null === $subscription)
-			return null;
+		if (null === $subscription) {
+			return $useDefaultPlan
+				? $this->planRepository->defaultPlan()
+				: null;
+		}
 
 		$plan = $subscription->plan;
 

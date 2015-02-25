@@ -23,9 +23,11 @@ class SubscriptionsServiceProvider extends ServiceProvider
 		$config = $this->app['config'];
 
 		$this->app->bind('Ipunkt\Subscriptions\Plans\PlanRepository', function () use ($config) {
-			return new PlanRepository($config->get('subscriptions::plans'));
-		});
+			$repository = new PlanRepository($config->get('subscriptions::plans'));
+			$repository->setDefaultPlan($config->get('subscriptions::defaults.plan'));
 
+			return $repository;
+		});
 	}
 
 	/**
