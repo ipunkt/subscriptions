@@ -42,7 +42,7 @@ class SubscriptionRepository
 	 */
 	public function create(Plan $plan, PaymentOption $paymentOption, SubscriptionSubscriber $subscriber)
 	{
-		$subscription = Subscription::firstOrCreate([
+		$subscription = Subscription::firstOrNew([
 			'model_id' => $subscriber->getSubscriberId(),
 			'model_class' => $subscriber->getSubscriberModel(),
 		]);
@@ -135,6 +135,15 @@ class SubscriptionRepository
 				: new SubscriptionWasUpdated($subscription, $plan, $paymentOption);
 
 			$subscription->raise($event);
+
+			if ($plan->isFree()) {
+				$period->markAsPaid('');
+
+				//  assign period events to be raised via the subscription raising method
+				$events = $period->releaseEvents();
+				foreach ($events as $event)
+					$subscription->raise($event);
+			}
 		}
 
 		return $subscription;
