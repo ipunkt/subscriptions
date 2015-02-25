@@ -96,10 +96,11 @@ class Period extends Model
 	 *
 	 * @param mixed $invoiceReference
 	 * @param Carbon $invoiceDate
+	 * @param null|float $invoiceSum
 	 *
 	 * @return $this
 	 */
-	public function markAsPaid($invoiceReference, Carbon $invoiceDate = null)
+	public function markAsPaid($invoiceReference, Carbon $invoiceDate = null, $invoiceSum = null)
 	{
 		$this->invoice_reference = $invoiceReference;
 		if (null === $invoiceDate)
@@ -109,6 +110,9 @@ class Period extends Model
 
 		$this->state = self::STATE_PAID;
 		$this->invoice_date = $invoiceDate;
+		if (null !== $invoiceSum && is_numeric($invoiceSum))
+			$this->invoice_sum = $invoiceSum;
+
 		if ($this->save() && $raiseEvent)
 			$this->raise(new SubscriptionWasPaid($this));
 
