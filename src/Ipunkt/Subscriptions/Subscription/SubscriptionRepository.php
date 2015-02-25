@@ -42,6 +42,9 @@ class SubscriptionRepository
 	 */
 	public function create(Plan $plan, PaymentOption $paymentOption, SubscriptionSubscriber $subscriber)
 	{
+		$lastSubscription = $this->allBySubscriber($subscriber)->last();
+		$startDate = (null === $lastSubscription) ? Carbon::now() : $lastSubscription->subscription_ends_at;
+
 		$subscription = Subscription::firstOrNew([
 			'model_id' => $subscriber->getSubscriberId(),
 			'model_class' => $subscriber->getSubscriberModel(),
@@ -52,7 +55,7 @@ class SubscriptionRepository
 
 		$subscription->plan = $plan->id();
 
-		$this->subscription = $this->saveSubscription($subscription, $plan, $paymentOption);
+		$this->subscription = $this->saveSubscription($subscription, $plan, $paymentOption, $startDate);
 
 		return $this->subscription;
 	}
@@ -69,6 +72,9 @@ class SubscriptionRepository
 	 */
 	public function upgrade(Subscription $subscription, Plan $plan, PaymentOption $paymentOption, SubscriptionSubscriber $subscriber)
 	{
+		$lastSubscription = $this->allBySubscriber($subscriber)->last();
+		$startDate = (null === $lastSubscription) ? $subscription->subscription_ends_at : $lastSubscription->subscription_ends_at;
+
 		$subscription->model_id = $subscriber->getSubscriberId();
 		$subscription->model_class = $subscriber->getSubscriberModel();
 		$subscription->plan = $plan->id();
@@ -79,7 +85,7 @@ class SubscriptionRepository
 
 		$newSubscription = Subscription::firstOrNew($subscriptionData);
 
-		return $this->saveSubscription($newSubscription, $plan, $paymentOption, $subscription->subscription_ends_at);
+		return $this->saveSubscription($newSubscription, $plan, $paymentOption, $startDate);
 	}
 
 	/**
