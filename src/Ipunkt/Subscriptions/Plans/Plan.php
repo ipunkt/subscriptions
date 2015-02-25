@@ -48,15 +48,24 @@ class Plan implements ArrayableInterface
 	private $paymentOptions;
 
 	/**
+	 * setting a subscription break in days
+	 *
+	 * @var int
+	 */
+	private $subscriptionBreak = 0;
+
+	/**
 	 * @param string $id
 	 * @param string $name
 	 * @param string $description
+	 * @param int $subscriptionBreak
 	 */
-	public function __construct($id, $name, $description)
+	public function __construct($id, $name, $description, $subscriptionBreak = 0)
 	{
 		$this->id = $id;
 		$this->name = $name;
 		$this->description = $description;
+		$this->subscriptionBreak = $subscriptionBreak;
 
 		$this->benefits = new Collection();
 		$this->paymentOptions = new Collection();
@@ -72,7 +81,8 @@ class Plan implements ArrayableInterface
 	 */
 	public static function createFromArray($id, array $planData)
 	{
-		$plan = new self($id, $planData['name'], $planData['description']);
+		$subscriptionBreak = array_get($planData, 'subscription_break', 0);
+		$plan = new self($id, $planData['name'], $planData['description'], $subscriptionBreak);
 
 		if (array_key_exists('benefits', $planData)) {
 			$plan->addBenefits($planData['benefits']);
@@ -249,6 +259,16 @@ class Plan implements ArrayableInterface
 	}
 
 	/**
+	 * returns the necessary subscription break in days
+	 *
+	 * @return int
+	 */
+	public function subscriptionBreak()
+	{
+		return $this->subscriptionBreak;
+	}
+
+	/**
 	 * Get the instance as an array.
 	 *
 	 * @return array
@@ -261,6 +281,7 @@ class Plan implements ArrayableInterface
 			'description' => $this->description(),
 			'benefits' => $this->benefits()->toArray(),
 			'paymentOptions' => $this->paymentOptions()->toArray(),
+			'subscription_break' => $this->subscriptionBreak,
 		];
 	}
 
@@ -277,5 +298,23 @@ class Plan implements ArrayableInterface
 			$plan = $plan->id();
 
 		return strtoupper($plan) === $this->id();
+	}
+
+	/**
+	 * magic accessor
+	 *
+	 * @param string $property
+	 *
+	 * @return null|mixed
+	 */
+	public function __get($property)
+	{
+		if (method_exists($this, $property))
+			return $this->$property();
+
+		if (property_exists($this, $property))
+			return $this->$property;
+
+		return null;
 	}
 }

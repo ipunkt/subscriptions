@@ -7,6 +7,7 @@
  *   PLAN-ID => [
  *     'name' => Name of the plan,
  *     'description' => Description of the plan,
+ *     'subscription_break' => 0, // optional, break in days before a subscriber can subscribe to this plan again
  *
  *     //  optional entry
  *     'benefits' => [
@@ -35,6 +36,7 @@ return [
 	'PLAN-ID' => [
 		'name' => 'TRIAL',
 		'description' => 'Das ist ein Testvertrag.',
+		'subscription_break' => 0,
 
 		'benefits' => [
 			'feature-1' => [],

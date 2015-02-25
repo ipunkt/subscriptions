@@ -1,5 +1,6 @@
 <?php namespace Ipunkt\Subscriptions;
 
+use Illuminate\Support\Collection;
 use Ipunkt\Subscriptions\Plans\PaymentOption;
 use Ipunkt\Subscriptions\Plans\Plan;
 use Ipunkt\Subscriptions\Plans\PlanRepository;
@@ -62,7 +63,7 @@ class SubscriptionManager
 	/**
 	 * returns all configured plans
 	 *
-	 * @return array|Plan[]
+	 * @return array|Plan[]|Collection
 	 */
 	public function plans()
 	{
@@ -75,7 +76,7 @@ class SubscriptionManager
 	 * @param SubscriptionSubscriber $subscriber
 	 * @param bool $useDefaultPlan
 	 *
-	 * @return \Ipunkt\Subscriptions\Plans\Plan|null
+	 * @return Plan|null
 	 */
 	public function plan(SubscriptionSubscriber $subscriber, $useDefaultPlan = true)
 	{
@@ -126,7 +127,7 @@ class SubscriptionManager
 	 *
 	 * @param SubscriptionSubscriber $subscriber
 	 *
-	 * @return \Ipunkt\Subscriptions\Subscription\Subscription|null
+	 * @return Subscription|null
 	 */
 	public function current(SubscriptionSubscriber $subscriber)
 	{
@@ -146,7 +147,7 @@ class SubscriptionManager
 	 *
 	 * @param SubscriptionSubscriber $subscriber
 	 *
-	 * @return array|\Ipunkt\Subscriptions\Subscription\Subscription[]|static[]
+	 * @return array|Subscription[]|\Illuminate\Database\Eloquent\Collection
 	 */
 	public function all(SubscriptionSubscriber $subscriber)
 	{
@@ -160,7 +161,7 @@ class SubscriptionManager
 	 * @param string|PaymentOption $paymentOption
 	 * @param SubscriptionSubscriber $subscriber
 	 *
-	 * @return \Ipunkt\Subscriptions\Subscription\Subscription
+	 * @return Subscription
 	 */
 	public function create($plan, $paymentOption, SubscriptionSubscriber $subscriber)
 	{
@@ -188,5 +189,34 @@ class SubscriptionManager
 			return false;
 
 		return $this->subscription->paid();
+	}
+
+	/**
+	 * returns only selectable plans
+	 *
+	 * @param SubscriptionSubscriber $subscriber
+	 *
+	 * @return array|Collection|Plan[]
+	 */
+	public function selectablePlans(SubscriptionSubscriber $subscriber)
+	{
+		$plans = $this->plans();
+
+		$breakingPlans = $plans->filter(function (Plan $plan) {
+			return $plan->subscriptionBreak() > 0;
+		});
+
+		if ($breakingPlans->isEmpty())
+			return $plans;
+
+		$subscriptions = $this->subscriptionRepository->allBySubscriberForPlans($subscriber, $breakingPlans->lists('id'));
+		foreach ($subscriptions as $subscription) {
+			/** @var Plan $breakingPlan */
+			$breakingPlan = $breakingPlans->get($subscription->plan);
+			if ($subscription->subscription_ends_at->addDays($breakingPlan->subscriptionBreak())->isFuture())
+				$plans->forget($subscription->plan);
+		}
+
+		return $plans;
 	}
 }

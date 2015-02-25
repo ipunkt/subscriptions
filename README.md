@@ -29,8 +29,13 @@ Run `php artisan migrate --package=ipunkt/subscriptions` to migrate the necessar
     	'PLAN-ID' => [
     		'name' => 'TRIAL',
     		'description' => 'Trial subscription.',
+    		'subscription_break' => 0,  // optional for preventing a subscription for X days after last subscription ends
     	],
     ];
+
+The optional property `'subscription_break` can be used to prevent a subscriber to subscribe to this plan before a 
+ configured count of days will be gone. This is for example to have a TRIAL plan which can be subscribed to only once 
+ a year.
 
 #### Benefit configuration for a plan
 
@@ -88,6 +93,13 @@ For setting a default plan to all subscribers you can use the `src/config/defaul
 
 	/** @var Plan[] $plans */
 	$plans = Subscription::plans();
+	
+
+If you use the subscription break in your plan configuration, fetch all plans with the `selectablePlans` method. This 
+ checks the last subscription for each breaking plan.
+
+	/** @var Plan[] $plans */
+	$plans = Subscription::selectablePlans($this->user);
 
 ### Getting the current plan for a subscriber
 

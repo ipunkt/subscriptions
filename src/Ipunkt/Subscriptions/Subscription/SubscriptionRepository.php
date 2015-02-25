@@ -1,6 +1,7 @@
 <?php namespace Ipunkt\Subscriptions\Subscription;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Ipunkt\Subscriptions\Plans\PaymentOption;
 use Ipunkt\Subscriptions\Plans\Plan;
 use Ipunkt\Subscriptions\Subscription\Contracts\SubscriptionSubscriber;
@@ -43,6 +44,9 @@ class SubscriptionRepository
 	public function create(Plan $plan, PaymentOption $paymentOption, SubscriptionSubscriber $subscriber)
 	{
 		$lastSubscription = $this->allBySubscriber($subscriber)->last();
+		if (null !== $lastSubscription && $lastSubscription->subscription_ends_at->isPast())
+			$lastSubscription = null;
+
 		$startDate = (null === $lastSubscription) ? Carbon::now() : $lastSubscription->subscription_ends_at;
 
 		$subscription = Subscription::firstOrNew([
@@ -73,7 +77,13 @@ class SubscriptionRepository
 	public function upgrade(Subscription $subscription, Plan $plan, PaymentOption $paymentOption, SubscriptionSubscriber $subscriber)
 	{
 		$lastSubscription = $this->allBySubscriber($subscriber)->last();
+		if (null !== $lastSubscription && $lastSubscription->subscription_ends_at->isPast())
+			$lastSubscription = null;
+
 		$startDate = (null === $lastSubscription) ? $subscription->subscription_ends_at : $lastSubscription->subscription_ends_at;
+
+		if ($startDate->isPast())
+			$startDate = Carbon::now();
 
 		$subscription->model_id = $subscriber->getSubscriberId();
 		$subscription->model_class = $subscriber->getSubscriberModel();
@@ -115,6 +125,23 @@ class SubscriptionRepository
 	{
 		return $this->subscription->whereModelId($subscriber->getSubscriberId())
 			->whereModelClass($subscriber->getSubscriberModel())
+			->orderBy('id')
+			->get();
+	}
+
+	/**
+	 * returns all subscriptions for given plans for a subscriber
+	 *
+	 * @param SubscriptionSubscriber $subscriber
+	 * @param array $plans
+	 *
+	 * @return array|Subscription[]|Collection
+	 */
+	public function allBySubscriberForPlans(SubscriptionSubscriber $subscriber, array $plans)
+	{
+		return $this->subscription->whereModelId($subscriber->getSubscriberId())
+			->whereModelClass($subscriber->getSubscriberModel())
+			->whereIn('plan', $plans)
 			->orderBy('id')
 			->get();
 	}
