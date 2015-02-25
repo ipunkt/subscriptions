@@ -237,6 +237,18 @@ class Plan implements ArrayableInterface
 	}
 
 	/**
+	 * returns period sum
+	 *
+	 * @param PaymentOption $paymentOption
+	 *
+	 * @return float
+	 */
+	public function getPeriodSum(PaymentOption $paymentOption)
+	{
+		return $paymentOption->price() * $paymentOption->quantity();
+	}
+
+	/**
 	 * Get the instance as an array.
 	 *
 	 * @return array
