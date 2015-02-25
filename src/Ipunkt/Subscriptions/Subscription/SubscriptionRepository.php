@@ -120,6 +120,16 @@ class SubscriptionRepository
 		$subscription->subscription_ends_at = with(clone $startDate)->addDays($paymentOption->days());
 
 		if ($subscription->save()) {
+
+			$period = new Period([
+				'start' => $startDate,
+				'end' => $subscription->subscription_ends_at,
+				'invoice_sum' => $plan->getPeriodSum($paymentOption),
+				'invoice_date' => Carbon::now(),
+				'state' => Period::STATE_UNPAID,
+			]);
+			$subscription->periods()->save($period);
+
 			$event = $create
 				? new SubscriptionWasCreated($subscription, $plan, $paymentOption)
 				: new SubscriptionWasUpdated($subscription, $plan, $paymentOption);

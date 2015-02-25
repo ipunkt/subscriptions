@@ -26,6 +26,7 @@ use Laracasts\Commander\Events\EventGenerator;
  * @method static \Illuminate\Database\Query\Builder|Subscription whereSubscriptionEndsAt($value)
  * @method static \Illuminate\Database\Query\Builder|Subscription whereState($value)
  * @property-read \Illuminate\Database\Eloquent\Model $subscriber
+ * @property-read \Ipunkt\Subscriptions\Subscription\Period[] $periods
  *
  * @package Ipunkt\Subscriptions\Subscription
  */
@@ -58,6 +59,16 @@ class Subscription extends Model
 	 */
 	public function subscriber() {
 		return $this->morphTo('Company', 'model_class', 'model_id');
+	}
+
+	/**
+	 * related periods
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function periods()
+	{
+		return $this->hasMany('\Ipunkt\Subscriptions\Subscription\Period');
 	}
 
 	/**
