@@ -83,6 +83,7 @@ class SubscriptionManager
 			return null;
 
 		$plan = $subscription->plan;
+
 		return $this->planRepository->find($plan);
 	}
 
@@ -134,6 +135,18 @@ class SubscriptionManager
 		}
 
 		return $this->subscription;
+	}
+
+	/**
+	 * returns all subscriptions for a subscriber
+	 *
+	 * @param SubscriptionSubscriber $subscriber
+	 *
+	 * @return array|\Ipunkt\Subscriptions\Subscription\Subscription[]|static[]
+	 */
+	public function all(SubscriptionSubscriber $subscriber)
+	{
+		return $this->subscriptionRepository->allBySubscriber($subscriber);
 	}
 
 	/**
