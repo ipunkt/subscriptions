@@ -118,4 +118,14 @@ class Period extends Model
 
 		return $this;
 	}
+
+	/**
+	 * is the period without any costs
+	 *
+	 * @return bool
+	 */
+	public function isFree()
+	{
+		return $this->invoice_sum == 0;
+	}
 }
