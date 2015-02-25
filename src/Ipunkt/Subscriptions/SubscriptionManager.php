@@ -78,15 +78,11 @@ class SubscriptionManager
 	 */
 	public function plan(SubscriptionSubscriber $subscriber)
 	{
-		if ($this->subscription === null || ! $this->subscription->isSubscribedTo($subscriber)) {
-			$subscription = $this->subscriptionRepository->findBySubscriber($subscriber);
-			if (null === $subscription)
-				return null;
+		$subscription = $this->current($subscriber);
+		if (null === $subscription)
+			return null;
 
-			$this->subscription = $subscription;
-		}
-
-		$plan = $this->subscription->plan;
+		$plan = $subscription->plan;
 		return $this->planRepository->find($plan);
 	}
 
@@ -118,6 +114,26 @@ class SubscriptionManager
 			return false;
 
 		return $currentPlan->can($feature, $value);
+	}
+
+	/**
+	 * returns current subscription for subscriber
+	 *
+	 * @param SubscriptionSubscriber $subscriber
+	 *
+	 * @return \Ipunkt\Subscriptions\Subscription\Subscription|null
+	 */
+	public function current(SubscriptionSubscriber $subscriber)
+	{
+		if ($this->subscription === null || ! $this->subscription->isSubscribedTo($subscriber)) {
+			$subscription = $this->subscriptionRepository->findBySubscriber($subscriber);
+			if (null === $subscription)
+				return null;
+
+			$this->subscription = $subscription;
+		}
+
+		return $this->subscription;
 	}
 
 	/**

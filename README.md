@@ -128,3 +128,8 @@ You can upgrade the subscription to any other plan. The same method `Subscriptio
 
 The fired events have both the current subscription, the selected plan and the payment option as properties.
  So you can listen on these events and do your own stuff.
+
+### Getting the current subscription for a subscriber
+
+	/** @var Subscription|null $subscription */
+	$subscription = Subscription::current($subscriber);
