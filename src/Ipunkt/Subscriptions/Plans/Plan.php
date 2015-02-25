@@ -276,6 +276,6 @@ class Plan implements ArrayableInterface
 		if ($plan instanceof Plan)
 			$plan = $plan->id();
 
-		return $plan === $this->id();
+		return strtoupper($plan) === $this->id();
 	}
 }
