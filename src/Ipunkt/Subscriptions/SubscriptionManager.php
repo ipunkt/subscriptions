@@ -42,11 +42,13 @@ class SubscriptionManager
 	/**
 	 * does a subscription already exists
 	 *
+	 * @param SubscriptionSubscriber $subscriber
+	 *
 	 * @return bool
 	 */
-	public function exists()
+	public function exists(SubscriptionSubscriber $subscriber)
 	{
-		return $this->plan() !== null;
+		return $this->plan($subscriber) !== null;
 	}
 
 	/**
@@ -62,11 +64,18 @@ class SubscriptionManager
 	/**
 	 * returns the current plan
 	 *
-	 * @return Plan|null
+	 * @param SubscriptionSubscriber $subscriber
+	 *
+	 * @return \Ipunkt\Subscriptions\Plans\Plan|null
 	 */
-	public function plan()
+	public function plan(SubscriptionSubscriber $subscriber)
 	{
-		return $this->planRepository->find('');
+		$subscription = $this->subscriptionRepository->findBySubscriber($subscriber);
+		if (null === $subscription)
+			return null;
+
+		$plan = $subscription->plan;
+		return $this->planRepository->find($plan);
 	}
 
 	/**
@@ -84,14 +93,15 @@ class SubscriptionManager
 	/**
 	 * feature check on the current subscription
 	 *
+	 * @param SubscriptionSubscriber $subscriber
 	 * @param string $feature
 	 * @param null|int $value
 	 *
 	 * @return bool
 	 */
-	public function can($feature, $value = null)
+	public function can(SubscriptionSubscriber $subscriber, $feature, $value = null)
 	{
-		$currentPlan = $this->plan();
+		$currentPlan = $this->plan($subscriber);
 		if (null === $currentPlan)
 			return false;
 

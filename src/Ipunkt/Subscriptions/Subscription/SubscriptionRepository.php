@@ -69,6 +69,9 @@ class SubscriptionRepository
 	 */
 	public function upgrade(Subscription $subscription, Plan $plan, PaymentOption $paymentOption, SubscriptionSubscriber $subscriber)
 	{
+		$subscription->model_id = $subscriber->getSubscriberId();
+		$subscription->model_class = $subscriber->getSubscriberModel();
+
 		$subscriptionData = $subscription->toArray();
 		if (isset($subscriptionData['created_at'])) unset($subscriptionData['created_at']);
 		if (isset($subscriptionData['updated_at'])) unset($subscriptionData['updated_at']);
@@ -79,6 +82,20 @@ class SubscriptionRepository
 			return $this->saveSubscription($subscription, $plan, $paymentOption);
 
 		return $this->saveSubscription($subscription, $plan, $paymentOption, $subscription->subscription_ends_at);
+	}
+
+	/**
+	 * returns first subscription for subscriber
+	 *
+	 * @param SubscriptionSubscriber $subscriber
+	 *
+	 * @return Subscription|null
+	 */
+	public function findBySubscriber(SubscriptionSubscriber $subscriber)
+	{
+		return $this->subscription->whereModelId($subscriber->getSubscriberId())
+			->whereModelClass($subscriber->getSubscriberModel())
+			->first();
 	}
 
 	/**

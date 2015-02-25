@@ -84,24 +84,24 @@ Run `php artisan migrate --package=ipunkt/subscriptions` to migrate the necessar
 	/** @var Plan[] $plans */
 	$plans = Subscription::plans();
 
-### Getting the current plan
+### Getting the current plan for a subscriber
 
 	/** @var Plan|null $plan */
-	$plan = Subscription::plan();
+	$plan = Subscription::plan($subscriber);
 
-### Does a subscription already exists
+### Does a subscription already exists for a subscriber
 
-	Subscription::exists(); // returns true when a subscription exists
+	Subscription::exists($subscriber); // returns true when a subscription exists
 
 ### Each plan can have benefits (features)
 
 	$plan->can('feature');               // returns true or false
 	$plan->can('countable-feature', 14); // returns true or false
 
-Or use the `Subscription` facade instead to check against current subscription plan. This is recommended:
+Or use the `Subscription` facade instead to check against current subscription plan for a subscriber. This is recommended:
 
-	Subscription::can('feature');               // returns true or false
-	Subscription::can('countable-feature', 14); // returns true or false
+	Subscription::can($subscriber, 'feature');               // returns true or false
+	Subscription::can($subscriber, 'countable-feature', 14); // returns true or false
 
 ### Getting all possible payment options for a plan
 
