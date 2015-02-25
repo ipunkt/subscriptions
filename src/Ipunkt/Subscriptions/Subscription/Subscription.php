@@ -1,5 +1,6 @@
 <?php namespace Ipunkt\Subscriptions\Subscription;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Ipunkt\Subscriptions\Subscription\Contracts\SubscriptionSubscriber;
 use Laracasts\Commander\Events\EventGenerator;
@@ -72,6 +73,31 @@ class Subscription extends Model
 	}
 
 	/**
+	 * returns current period
+	 *
+	 * @return Period|static|null
+	 */
+	public function currentPeriod()
+	{
+		$now = Carbon::now();
+
+		return $this->periods()
+			->where('start', '<=', $now)
+			->where('end', '>=', $now)
+			->first();
+	}
+
+	/**
+	 * returns last period
+	 *
+	 * @return Period|static|null
+	 */
+	public function lastPeriod()
+	{
+		return $this->periods()->orderBy('id', 'DESC')->first();
+	}
+
+	/**
 	 * is the subscription subscribed to the given subscriber
 	 *
 	 * @param SubscriptionSubscriber $subscriber
@@ -92,5 +118,22 @@ class Subscription extends Model
 	public function onTrial()
 	{
 		return $this->trial_ends_at->isFuture();
+	}
+
+	/**
+	 * is the subscription paid
+	 *
+	 * @return bool
+	 */
+	public function paid()
+	{
+		$currentPeriod = $this->currentPeriod();
+		if (null === $currentPeriod) {
+			$currentPeriod = $this->lastPeriod();
+			if (null !== $currentPeriod && ! $currentPeriod->start->isFuture())
+				$currentPeriod = null;
+		}
+
+		return null !== $currentPeriod && $currentPeriod->isPaid();
 	}
 }

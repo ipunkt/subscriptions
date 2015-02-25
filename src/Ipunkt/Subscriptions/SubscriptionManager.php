@@ -155,4 +155,17 @@ class SubscriptionManager
 
 		return $this->subscriptionRepository->create($plan, $paymentOption, $subscriber);
 	}
+
+	/**
+	 * is the current period subscription paid
+	 *
+	 * @return bool
+	 */
+	public function paid()
+	{
+		if (null === $this->subscription)
+			return false;
+
+		return $this->subscription->paid();
+	}
 }
