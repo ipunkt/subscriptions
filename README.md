@@ -133,3 +133,10 @@ The fired events have both the current subscription, the selected plan and the p
 
 	/** @var Subscription|null $subscription */
 	$subscription = Subscription::current($subscriber);
+
+
+### Check subscriber on a Trial
+
+	/** be careful because current() can return null when no subscription existing */
+	$onTrial = Subscription::current($subscriber)->onTrial();
+
