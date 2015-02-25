@@ -1,6 +1,7 @@
 <?php namespace Ipunkt\Subscriptions\Subscription;
 
 use Illuminate\Database\Eloquent\Model;
+use Ipunkt\Subscriptions\Subscription\Contracts\SubscriptionSubscriber;
 use Laracasts\Commander\Events\EventGenerator;
 
 /**
@@ -57,5 +58,18 @@ class Subscription extends Model
 	 */
 	public function subscriber() {
 		return $this->morphTo('Company', 'model_class', 'model_id');
+	}
+
+	/**
+	 * is the subscription subscribed to the given subscriber
+	 *
+	 * @param SubscriptionSubscriber $subscriber
+	 *
+	 * @return bool
+	 */
+	public function isSubscribedTo(SubscriptionSubscriber $subscriber)
+	{
+		return $this->model_id == $subscriber->getSubscriberId()
+			&& $this->model_class == $subscriber->getSubscriberModel();
 	}
 }

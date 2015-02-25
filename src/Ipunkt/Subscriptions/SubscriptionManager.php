@@ -4,6 +4,7 @@ use Ipunkt\Subscriptions\Plans\PaymentOption;
 use Ipunkt\Subscriptions\Plans\Plan;
 use Ipunkt\Subscriptions\Plans\PlanRepository;
 use Ipunkt\Subscriptions\Subscription\Contracts\SubscriptionSubscriber;
+use Ipunkt\Subscriptions\Subscription\Subscription;
 use Ipunkt\Subscriptions\Subscription\SubscriptionRepository;
 
 /**
@@ -28,6 +29,13 @@ class SubscriptionManager
 	 * @var SubscriptionRepository
 	 */
 	private $subscriptionRepository;
+
+	/**
+	 * current plan
+	 *
+	 * @var Subscription
+	 */
+	private $subscription;
 
 	/**
 	 * @param PlanRepository $planRepository
@@ -70,11 +78,15 @@ class SubscriptionManager
 	 */
 	public function plan(SubscriptionSubscriber $subscriber)
 	{
-		$subscription = $this->subscriptionRepository->findBySubscriber($subscriber);
-		if (null === $subscription)
-			return null;
+		if ($this->subscription === null || ! $this->subscription->isSubscribedTo($subscriber)) {
+			$subscription = $this->subscriptionRepository->findBySubscriber($subscriber);
+			if (null === $subscription)
+				return null;
 
-		$plan = $subscription->plan;
+			$this->subscription = $subscription;
+		}
+
+		$plan = $this->subscription->plan;
 		return $this->planRepository->find($plan);
 	}
 
