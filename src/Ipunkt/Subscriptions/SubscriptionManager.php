@@ -159,10 +159,14 @@ class SubscriptionManager
 	/**
 	 * is the current period subscription paid
 	 *
+	 * @param SubscriptionSubscriber $subscriber
+	 *
 	 * @return bool
 	 */
-	public function paid()
+	public function paid(SubscriptionSubscriber $subscriber)
 	{
+		$this->current($subscriber);
+
 		if (null === $this->subscription)
 			return false;
 
