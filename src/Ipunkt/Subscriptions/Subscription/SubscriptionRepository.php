@@ -85,17 +85,34 @@ class SubscriptionRepository
 	}
 
 	/**
-	 * returns first subscription for subscriber
+	 * returns newest subscription for subscriber
 	 *
 	 * @param SubscriptionSubscriber $subscriber
 	 *
-	 * @return Subscription|null
+	 * @return \Ipunkt\Subscriptions\Subscription\Subscription|null
 	 */
 	public function findBySubscriber(SubscriptionSubscriber $subscriber)
 	{
 		return $this->subscription->whereModelId($subscriber->getSubscriberId())
 			->whereModelClass($subscriber->getSubscriberModel())
+			->where('subscription_ends_at', '>=', Carbon::now())
+			->orderBy('id', 'asc')
 			->first();
+	}
+
+	/**
+	 * returns ordered collection of all subscriptions for a subscriber
+	 *
+	 * @param \Ipunkt\Subscriptions\Subscription\Contracts\SubscriptionSubscriber $subscriber
+	 *
+	 * @return array|static[]|Subscription[]
+	 */
+	public function allBySubscriber(SubscriptionSubscriber $subscriber)
+	{
+		return $this->subscription->whereModelId($subscriber->getSubscriberId())
+			->whereModelClass($subscriber->getSubscriberModel())
+			->orderBy('id')
+			->get();
 	}
 
 	/**
