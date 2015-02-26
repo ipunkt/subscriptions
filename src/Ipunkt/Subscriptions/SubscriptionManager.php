@@ -123,6 +123,23 @@ class SubscriptionManager
 	}
 
 	/**
+	 * returns a feature when it exists on the current plan or null when missing
+	 *
+	 * @param SubscriptionSubscriber $subscriber
+	 * @param string $feature
+	 *
+	 * @return \Ipunkt\Subscriptions\Plans\Benefit|null
+	 */
+	public function feature(SubscriptionSubscriber $subscriber, $feature)
+	{
+		$currentPlan = $this->plan($subscriber);
+		if (null === $currentPlan)
+			return null;
+
+		return $currentPlan->feature($feature);
+	}
+
+	/**
 	 * returns current subscription for subscriber
 	 *
 	 * @param SubscriptionSubscriber $subscriber

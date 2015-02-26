@@ -156,11 +156,23 @@ class Plan implements ArrayableInterface
 	 */
 	public function can($feature, $value = null)
 	{
-		$f = $this->benefits()->first(function ($key, Benefit $benefit) use ($feature) {
-			return $benefit->feature() === strtoupper($feature);
-		});
+		$f = $this->feature($feature);
 
 		return $f !== null && $f->can($value);
+	}
+
+	/**
+	 * returns a feature from plan
+	 *
+	 * @param string $feature
+	 *
+	 * @return Benefit|null
+	 */
+	public function feature($feature)
+	{
+		return $this->benefits()->first(function ($key, Benefit $benefit) use ($feature) {
+			return $benefit->feature() === strtoupper($feature);
+		});
 	}
 
 	/**
