@@ -82,8 +82,18 @@ class PaymentOption implements ArrayableInterface
 	public function price($formatted = false)
 	{
 		return $formatted
-			? $this->price
-			: number_format($this->price, 2, ',', '.') . ' &euro;';
+			? number_format($this->price, 2, ',', '.') . ' &euro;'
+			: $this->price;
+	}
+
+	/**
+	 * returns the total price
+	 *
+	 * @return float
+	 */
+	public function total()
+	{
+		return $this->price(false) * $this->quantity();
 	}
 
 	/**
