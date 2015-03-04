@@ -17,6 +17,9 @@ use Ipunkt\Subscriptions\Subscription\Events\SubscriptionWasUpdated;
  */
 class SubscriptionRepository
 {
+	const MODE_CREATE = 'create';
+	const MODE_UPDATE = 'update';
+
 	/**
 	 * subscription model
 	 *
@@ -59,7 +62,7 @@ class SubscriptionRepository
 
 		$subscription->plan = $plan->id();
 
-		$this->subscription = $this->saveSubscription($subscription, $plan, $paymentOption, $startDate);
+		$this->subscription = $this->saveSubscription($subscription, $plan, $paymentOption, $startDate, self::MODE_CREATE);
 
 		return $this->subscription;
 	}
@@ -95,7 +98,7 @@ class SubscriptionRepository
 
 		$newSubscription = Subscription::firstOrNew($subscriptionData);
 
-		return $this->saveSubscription($newSubscription, $plan, $paymentOption, $startDate);
+		return $this->saveSubscription($newSubscription, $plan, $paymentOption, $startDate, self::MODE_UPDATE);
 	}
 
 	/**
@@ -119,7 +122,7 @@ class SubscriptionRepository
 	 *
 	 * @param \Ipunkt\Subscriptions\Subscription\Contracts\SubscriptionSubscriber $subscriber
 	 *
-	 * @return array|static[]|Subscription[]
+	 * @return array|static[]|Subscription[]|Collection
 	 */
 	public function allBySubscriber(SubscriptionSubscriber $subscriber)
 	{
@@ -135,7 +138,7 @@ class SubscriptionRepository
 	 * @param SubscriptionSubscriber $subscriber
 	 * @param array $plans
 	 *
-	 * @return array|Subscription[]|Collection
+	 * @return array|static[]|Subscription[]|Collection
 	 */
 	public function allBySubscriberForPlans(SubscriptionSubscriber $subscriber, array $plans)
 	{
@@ -153,16 +156,14 @@ class SubscriptionRepository
 	 * @param \Ipunkt\Subscriptions\Plans\Plan $plan
 	 * @param \Ipunkt\Subscriptions\Plans\PaymentOption $paymentOption
 	 * @param \Carbon\Carbon $startDate
+	 * @param string $mode
 	 *
 	 * @return \Ipunkt\Subscriptions\Subscription\Subscription
 	 */
-	private function saveSubscription(Subscription $subscription, Plan $plan, PaymentOption $paymentOption, Carbon $startDate = null)
+	private function saveSubscription(Subscription $subscription, Plan $plan, PaymentOption $paymentOption, Carbon $startDate = null, $mode)
 	{
-		$create = false;
-		if ($startDate === null) {
-			$create = true;
+		if ($startDate === null)
 			$startDate = Carbon::now();
-		}
 
 		$subscription->trial_ends_at = with(clone $startDate)->addDays($paymentOption->period());
 		$subscription->subscription_ends_at = with(clone $startDate)->addDays($paymentOption->days());
@@ -178,7 +179,7 @@ class SubscriptionRepository
 			]);
 			$subscription->periods()->save($period);
 
-			$event = $create
+			$event = ($mode === self::MODE_CREATE)
 				? new SubscriptionWasCreated($subscription, $plan, $paymentOption)
 				: new SubscriptionWasUpdated($subscription, $plan, $paymentOption);
 
