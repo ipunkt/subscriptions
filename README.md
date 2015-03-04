@@ -165,3 +165,152 @@ The fired events have both the current subscription, the selected plan and the p
 
 	/** @var Period[] $periods */
 	$periods = $subscription->periods;
+
+
+## Userland code
+
+### Fitting in you controllers
+
+We use the `laracasts/commander` package for handling business commands and events.
+
+	class SubscriptionsController extends \Controller
+	{
+		/**
+         * use commandbus to execute commands
+         */
+        use Laracasts\Commander\CommanderTrait;
+        
+        // display an overview of all subscriptions
+        public function index()
+        {
+            $subscribed = Subscription::exists($this->user);// $this->user represents a SubscriptionSubscriber interface
+            if ( ! $subscribed) {
+                $plans = Subscription::selectablePlans($this->user);    // unselectable plans filtered out already
+                $defaultPlan = Subscription::plan($this->user);
+    
+                return View::make('subscriptions.create', compact('plans', 'defaultPlan'));
+            }
+    
+            $plan = Subscription::plan($this->user);
+            $subscription = Subscription::current($this->user);
+    
+            $paid = $subscription->paid();
+    
+            $subscriptions = Subscription::all($this->user);
+    
+            return View::make('subscriptions.index', compact('subscribed', 'plan', 'subscription', 'subscriptions', 'paid'));
+        }
+        
+        //  create a plan (form)
+        public function create($plan)
+        {
+            $plan = Subscription::findPlan($plan);
+    
+            $subscription = Subscription::all($this->user)->last();
+            if (null !== $subscription && $subscription->subscription_ends_at->isPast())
+                $subscription = null;
+    
+            $startDate = (null === $subscription) ? Carbon::now() : $subscription->subscription_ends_at->addSeconds(1);
+    
+            return View::make('subscriptions.create_plan', compact('plan', 'startDate'));
+        }
+        
+        //  store the plan as subscription for user
+        public function store()
+        {
+            try {
+                $this->validate(Input::all());
+            } catch (FormValidationException $e)
+            {
+                return Redirect::back()->withInput()->withErrors($e->getErrors());
+            }
+    
+            $plan = Subscription::findPlan(Input::get('plan'));
+            if (null === $plan)
+                throw (new ModelNotFoundException('No plan ' . Input::get('plan') . ' found.'))->setModel(Plan::class);
+    
+            $this->execute(CreateSubscriptionCommand::class, Input::all());
+    
+            Flash::success('subscriptions.subscription_created');
+    
+            return Redirect::route('subscriptions.index');
+        }
+	}
+
+And the corresponding command `CreateSubscriptionCommandHandler` is here (The `CreateSubscriptionCommand` is only a DTO
+ for the input values):
+
+	class CreateSubscriptionCommandHandler implements Laracasts\Commander\CommandHandler
+	{
+		use Laracasts\Commander\Events\DispatchableTrait;
+		
+		/**
+         * authenticated user
+         *
+         * @var \Illuminate\Auth\Guard
+         */
+        private $auth;
+    
+        /**
+         * @param AuthManager $auth
+         */
+        public function __construct(\Illuminate\Auth\AuthManager $auth)
+        {
+            $this->auth = $auth;
+        }
+        
+		/**
+         * Handle the command
+         *
+         * @param CreateSubscriptionCommand $command
+         * @return mixed
+         */
+        public function handle($command)
+        {
+            /** @var User|SubscriptionSubscriber $user */
+            $user = $this->auth->user();
+    
+            //  store invoice data
+            
+            //  create subscription
+            $subscription = Subscription::create($command->plan, $command->payment_option, $user);
+    
+            //  fire event for "subscription created" or "subscription updated"
+            $this->dispatchEventsFor($subscription);
+        }
+	}
+
+Nearly the same you have to do for extending or upgrading a plan. You can use the same command, handler and controller 
+ action. The subscription repository handles automatically an update or create for a subscription plan.
+
+### Registering a Listener
+
+	# in your app/listeners.php for example
+	Event::listen('Ipunkt.Subscriptions.Subscription.Events.*', 'App\Subscriptions\Listeners\EmailNotifier');
+
+	//  we use the laracasts/commander package, so you can inform you about a listener too
+	class EmailNotifier extends Laracasts\Commander\Events\EventListener
+    {
+        /**
+         * will be called when event SubscriptionWasCreated was fired
+         *
+         * @param SubscriptionWasCreated $event
+         */
+        public function whenSubscriptionWasCreated(SubscriptionWasCreated $event)
+        {
+            //  do something when a subscription was created (a new plan was set up and no plan exists before 
+            //  or every plan subscription before was in the past)
+        }
+    
+        /**
+         * will be called when event SubscriptionWasUpdated was fired
+         *
+         * @param SubscriptionWasUpdated $event
+         */
+        public function whenSubscriptionWasUpdated(SubscriptionWasUpdated $event)
+        {
+            //  do something when a subscription was updated (e.g. smaller plan before gets upgraded to a more-featured
+            //  plan or a subscription was extended to get longer running)
+        }
+    }
+
