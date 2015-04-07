@@ -7,7 +7,7 @@
 Add to your composer.json following lines
 
 	"require": {
-		"ipunkt/subscriptions": "dev-master"
+		"ipunkt/subscriptions": "~0.1"
 	}
 
 Run `php artisan config:publish ipunkt/subscriptions`
