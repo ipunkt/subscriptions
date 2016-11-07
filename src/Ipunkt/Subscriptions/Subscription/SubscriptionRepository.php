@@ -110,8 +110,16 @@ class SubscriptionRepository
 	 */
 	public function findBySubscriber(SubscriptionSubscriber $subscriber)
 	{
-		return $this->subscription->whereModelId($subscriber->getSubscriberId())
-			->whereModelClass($subscriber->getSubscriberModel())
+		try {
+			$subscriberId = $subscriber->getSubscriberId();
+			$subscriberModel = $subscriber->getSubscriberModel();
+		} catch (\Exception $e)
+		{
+			return null;
+		}
+		
+		return $this->subscription->whereModelId($subscriberId)
+			->whereModelClass($subscriberModel)
 			->where('subscription_ends_at', '>=', Carbon::now())
 			->orderBy('id', 'asc')
 			->first();
