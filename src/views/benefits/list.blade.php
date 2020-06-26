@@ -11,7 +11,7 @@
  * @supports translation in subscriptions.features.[YOUR-FEATURE-ID]
  */
 ?>@foreach ($benefits as $benefit)
-	<li>@if (Lang::has('subscriptions.features.' . $benefit->feature()))
+	<li>@if (trans('subscriptions.features.' . $benefit->feature()))
 			@lang('subscriptions.features.' . $benefit->feature())
 		@else
 			{{ $benefit->feature() }}

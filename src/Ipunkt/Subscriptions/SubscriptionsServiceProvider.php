@@ -5,47 +5,30 @@ use Ipunkt\Subscriptions\Plans\PlanRepository;
 
 class SubscriptionsServiceProvider extends ServiceProvider
 {
-	/**
-	 * Indicates if loading of the provider is deferred.
-	 *
-	 * @var bool
-	 */
-	protected $defer = false;
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__.'/../../config/config.php' => config_path('subscriptions.php'),
+        ], 'config');
+        $this->publishes([
+            __DIR__.'/../../views' => resource_path('views/vendor/subscriptions'),
+        ], 'views');
 
-	/**
-	 * booting the service
-	 */
-	public function boot()
-	{
-		$this->package('ipunkt/subscriptions');
+        $this->loadMigrationsFrom(__DIR__.'/../../migrations');
+        $this->loadViewsFrom(__DIR__.'/../../views', 'subscriptions');
 
-		/** @var \Illuminate\Config\Repository $config */
-		$config = $this->app['config'];
+        $this->app->bind('Ipunkt\Subscriptions\Plans\PlanRepository', function () {
+            $repository = new PlanRepository($this->app['config']->get('subscriptions.plans'));
+            $repository->setDefaultPlan($this->app['config']->get('subscriptions.defaults.plan'));
 
-		$this->app->bind('Ipunkt\Subscriptions\Plans\PlanRepository', function () use ($config) {
-			$repository = new PlanRepository($config->get('subscriptions::plans'));
-			$repository->setDefaultPlan($config->get('subscriptions::defaults.plan'));
+            return $repository;
+        });
+    }
 
-			return $repository;
-		});
-	}
-
-	/**
-	 * Register the service provider.
-	 *
-	 * @return void
-	 */
-	public function register()
-	{
-	}
-
-	/**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
-	public function provides()
-	{
-		return array();
-	}
+    public function register()
+    {
+        $this->mergeConfigFrom(
+            __DIR__.'/../../config/config.php', 'subscriptions'
+        );
+    }
 }

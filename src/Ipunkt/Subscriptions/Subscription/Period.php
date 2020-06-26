@@ -2,8 +2,9 @@
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Event;
 use Ipunkt\Subscriptions\Subscription\Events\SubscriptionWasPaid;
-use Laracasts\Commander\Events\EventGenerator;
 
 /**
  * Class Period
@@ -32,100 +33,101 @@ use Laracasts\Commander\Events\EventGenerator;
  */
 class Period extends Model
 {
-	CONST STATE_PAID = 'paid';
-	const STATE_UNPAID = 'unpaid';
+    const STATE_PAID = 'paid';
+    const STATE_UNPAID = 'unpaid';
 
-	use EventGenerator;
+    /**
+     * used table name
+     *
+     * @var string
+     */
+    protected $table = 'subscription_periods';
 
-	/**
-	 * used table name
-	 *
-	 * @var string
-	 */
-	protected $table = 'subscription_periods';
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'start',
+        'end',
+        'state',
+        'invoice_sum',
+        'invoice_date',
+    ];
 
-	/**
-	 * The attributes that are mass assignable.
-	 *
-	 * @var array
-	 */
-	protected $fillable = array(
-		'start',
-		'end',
-		'state',
-		'invoice_sum',
-		'invoice_date',
-	);
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
 
-	/**
-	 * Indicates if the model should be timestamped.
-	 *
-	 * @var bool
-	 */
-	public $timestamps = false;
+    /**
+     * mutate to carbon instances
+     *
+     * @var array
+     */
+    protected $dates = ['start', 'end', 'invoice_date'];
 
-	/**
-	 * mutate to carbon instances
-	 *
-	 * @var array
-	 */
-	protected $dates = ['start', 'end', 'invoice_date'];
+    /**
+     * is period paid
+     *
+     * @return bool
+     */
+    public function isPaid()
+    {
+        return $this->state === self::STATE_PAID;
+    }
 
-	/**
-	 * is period paid
-	 *
-	 * @return bool
-	 */
-	public function isPaid()
-	{
-		return $this->state === self::STATE_PAID;
-	}
+    /**
+     * related subscription
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function subscription(): BelongsTo
+    {
+        return $this->belongsTo(Subscription::class);
+    }
 
-	/**
-	 * related subscription
-	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-	 */
-	public function subscription()
-	{
-		return $this->belongsTo('Ipunkt\Subscriptions\Subscription\Subscription');
-	}
+    /**
+     * marks the current period as being paid
+     *
+     * @param mixed $invoiceReference
+     * @param Carbon $invoiceDate
+     * @param null|float $invoiceSum
+     *
+     * @return $this
+     */
+    public function markAsPaid($invoiceReference, Carbon $invoiceDate = null, $invoiceSum = null)
+    {
+        $this->invoice_reference = $invoiceReference;
+        if (null === $invoiceDate) {
+            $invoiceDate = Carbon::now();
+        }
 
-	/**
-	 * marks the current period as being paid
-	 *
-	 * @param mixed $invoiceReference
-	 * @param Carbon $invoiceDate
-	 * @param null|float $invoiceSum
-	 *
-	 * @return $this
-	 */
-	public function markAsPaid($invoiceReference, Carbon $invoiceDate = null, $invoiceSum = null)
-	{
-		$this->invoice_reference = $invoiceReference;
-		if (null === $invoiceDate)
-			$invoiceDate = Carbon::now();
+        $raiseEvent = !$this->isPaid();
 
-		$raiseEvent = ! $this->isPaid();
+        $this->state = self::STATE_PAID;
+        $this->invoice_date = $invoiceDate;
+        if (null !== $invoiceSum && is_numeric($invoiceSum)) {
+            $this->invoice_sum = $invoiceSum;
+        }
 
-		$this->state = self::STATE_PAID;
-		$this->invoice_date = $invoiceDate;
-		if (null !== $invoiceSum && is_numeric($invoiceSum))
-			$this->invoice_sum = $invoiceSum;
+        if ($this->save() && $raiseEvent) {
+            Event::dispatch(new SubscriptionWasPaid($this));
+        }
 
-		if ($this->save() && $raiseEvent)
-			$this->raise(new SubscriptionWasPaid($this));
+        return $this;
+    }
 
-		return $this;
-	}
-
-	/**
-	 * is the period without any costs
-	 *
-	 * @return bool
-	 */
-	public function isFree()
-	{
-		return $this->invoice_sum == 0;
-	}
+    /**
+     * is the period without any costs
+     *
+     * @return bool
+     */
+    public function isFree(): bool
+    {
+        return $this->invoice_sum == 0;
+    }
 }

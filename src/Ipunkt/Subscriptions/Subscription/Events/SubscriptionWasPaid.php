@@ -11,26 +11,26 @@ use Ipunkt\Subscriptions\Subscription\Period;
  */
 class SubscriptionWasPaid
 {
-	/**
-	 * paid period
-	 *
-	 * @var \Ipunkt\Subscriptions\Subscription\Period
-	 */
-	public $period;
+    /**
+     * paid period
+     *
+     * @var \Ipunkt\Subscriptions\Subscription\Period
+     */
+    public $period;
 
-	/**
-	 * paid subscription
-	 *
-	 * @var \Ipunkt\Subscriptions\Subscription\Subscription
-	 */
-	public $subscription;
+    /**
+     * paid subscription
+     *
+     * @var \Ipunkt\Subscriptions\Subscription\Subscription
+     */
+    public $subscription;
 
-	/**
-	 * @param \Ipunkt\Subscriptions\Subscription\Period $period
-	 */
-	public function __construct(Period $period)
-	{
-		$this->period = $period;
-		$this->subscription = $period->subscription;
-	}
+    /**
+     * @param \Ipunkt\Subscriptions\Subscription\Period $period
+     */
+    public function __construct(Period $period)
+    {
+        $this->period = $period;
+        $this->subscription = $period->subscription;
+    }
 }

@@ -1,4 +1,4 @@
-# Subscription handling package for Laravel 4.x applications
+# Subscription handling package for Laravel applications
 
 [![Latest Stable Version](https://poser.pugx.org/ipunkt/subscriptions/v/stable.svg)](https://packagist.org/packages/ipunkt/subscriptions) [![Latest Unstable Version](https://poser.pugx.org/ipunkt/subscriptions/v/unstable.svg)](https://packagist.org/packages/ipunkt/subscriptions) [![License](https://poser.pugx.org/ipunkt/subscriptions/license.svg)](https://packagist.org/packages/ipunkt/subscriptions) [![Total Downloads](https://poser.pugx.org/ipunkt/subscriptions/downloads.svg)](https://packagist.org/packages/ipunkt/subscriptions)
 
@@ -7,18 +7,16 @@
 Add to your composer.json following lines
 
 	"require": {
-		"ipunkt/subscriptions": "~0.1"
+		"ipunkt/subscriptions": "^1.0"
 	}
 
-Run `php artisan config:publish ipunkt/subscriptions`
+Run `php artisan vendor:publish ipunkt/subscriptions`
 
-Then edit `plans.php` in `app/config/packages/ipunkt/subscriptions` to your needs. All known plans are still in there.
+Then edit `plans.php` in `config/plans.php` to your needs. All known plans are still in there.
 
-Add `'Ipunkt\Subscriptions\SubscriptionsServiceProvider',` to `providers` in `app/config/app.php`.
+You can use the `Subscription` facade.
 
-Add `'Subscription' => 'Ipunkt\Subscriptions\SubscriptionsFacade',` to `aliases` in `app/config/app.php`.
-
-Run `php artisan migrate --package=ipunkt/subscriptions` to migrate the necessary database tables.
+Run `php artisan migrate` to migrate the necessary database tables.
 
 ## Configuration
 

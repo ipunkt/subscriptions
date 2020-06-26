@@ -1,30 +1,41 @@
 {
-	"name": "ipunkt/subscriptions",
-	"description": "Subscription handling package for laravel applications",
-	"keywords": [
-		"laravel",
-		"php",
-		"subscriptions",
-		"plan"
-	],
-	"license": "MIT",
-	"authors": [
-		{
-			"name": "Robert Kummer",
-			"email": "rok@ipunkt.biz"
-		}
-	],
-	"require": {
-		"php": ">=5.4.0",
-		"illuminate/support": "4.2.*",
-		"illuminate/database": "4.2.*",
-		"laracasts/commander": "~1.0",
-		"nesbot/carbon": "~1.0"
-	},
-	"autoload": {
-		"psr-4": {
-			"Ipunkt\\Subscriptions\\": "src/Ipunkt/Subscriptions"
-		}
-	},
-	"minimum-stability": "stable"
+  "name": "ipunkt/subscriptions",
+  "description": "Subscription handling package for laravel applications",
+  "keywords": [
+    "laravel",
+    "php",
+    "subscriptions",
+    "plan"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Robert Kummer",
+      "email": "rok@ipunkt.biz"
+    }
+  ],
+  "require": {
+    "php": ">=7.4.0",
+    "illuminate/config": "*",
+    "illuminate/contracts": "*",
+    "illuminate/events": "*",
+    "illuminate/support": "*",
+    "illuminate/database": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Ipunkt\\Subscriptions\\": "src/Ipunkt/Subscriptions"
+    }
+  },
+  "minimum-stability": "stable",
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Ipunkt\\Subscriptions\\SubscriptionsServiceProvider"
+      ],
+      "aliases": {
+        "Subscription": "Ipunkt\\Subscriptions\\SubscriptionsFacade"
+      }
+    }
+  }
 }

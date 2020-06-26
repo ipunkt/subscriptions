@@ -2,8 +2,10 @@
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\Config;
 use Ipunkt\Subscriptions\Subscription\Contracts\SubscriptionSubscriber;
-use Laracasts\Commander\Events\EventGenerator;
 
 /**
  * Class Subscription
@@ -33,107 +35,107 @@ use Laracasts\Commander\Events\EventGenerator;
  */
 class Subscription extends Model
 {
-	use EventGenerator;
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'model_id',
+        'model_class',
+        'plan',
+    ];
 
-	/**
-	 * The attributes that are mass assignable.
-	 *
-	 * @var array
-	 */
-	protected $fillable = [
-		'model_id',
-		'model_class',
-		'plan',
-	];
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['trial_ends_at', 'subscription_ends_at'];
 
-	/**
-	 * The attributes that should be mutated to dates.
-	 *
-	 * @var array
-	 */
-	protected $dates = ['trial_ends_at', 'subscription_ends_at'];
+    /**
+     * returns subscriber
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function subscriber(): MorphTo
+    {
+        return $this->morphTo(Config::get('subscription.subscriber_model'), 'model_class', 'model_id');
+    }
 
-	/**
-	 * returns subscriber
-	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\MorphTo
-	 */
-	public function subscriber() {
-		return $this->morphTo('Company', 'model_class', 'model_id');
-	}
+    /**
+     * related periods
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function periods(): HasMany
+    {
+        return $this->hasMany(Period::class);
+    }
 
-	/**
-	 * related periods
-	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
-	 */
-	public function periods()
-	{
-		return $this->hasMany('\Ipunkt\Subscriptions\Subscription\Period');
-	}
+    /**
+     * returns current period
+     *
+     * @return Period|static|null
+     */
+    public function currentPeriod()
+    {
+        $now = Carbon::now();
 
-	/**
-	 * returns current period
-	 *
-	 * @return Period|static|null
-	 */
-	public function currentPeriod()
-	{
-		$now = Carbon::now();
+        return $this->periods()
+            ->where('start', '<=', $now)
+            ->where('end', '>=', $now)
+            ->first();
+    }
 
-		return $this->periods()
-			->where('start', '<=', $now)
-			->where('end', '>=', $now)
-			->first();
-	}
+    /**
+     * returns last period
+     *
+     * @return Period|static|null
+     */
+    public function lastPeriod()
+    {
+        return $this->periods()->orderBy('id', 'DESC')->first();
+    }
 
-	/**
-	 * returns last period
-	 *
-	 * @return Period|static|null
-	 */
-	public function lastPeriod()
-	{
-		return $this->periods()->orderBy('id', 'DESC')->first();
-	}
+    /**
+     * is the subscription subscribed to the given subscriber
+     *
+     * @param SubscriptionSubscriber $subscriber
+     *
+     * @return bool
+     */
+    public function isSubscribedTo(SubscriptionSubscriber $subscriber): bool
+    {
+        return $this->model_id == $subscriber->getSubscriberId()
+            && $this->model_class == $subscriber->getSubscriberModel();
+    }
 
-	/**
-	 * is the subscription subscribed to the given subscriber
-	 *
-	 * @param SubscriptionSubscriber $subscriber
-	 *
-	 * @return bool
-	 */
-	public function isSubscribedTo(SubscriptionSubscriber $subscriber)
-	{
-		return $this->model_id == $subscriber->getSubscriberId()
-			&& $this->model_class == $subscriber->getSubscriberModel();
-	}
+    /**
+     * are we on trial period
+     *
+     * @return bool
+     */
+    public function onTrial(): bool
+    {
+        return $this->trial_ends_at->isFuture();
+    }
 
-	/**
-	 * are we on trial period
-	 *
-	 * @return bool
-	 */
-	public function onTrial()
-	{
-		return $this->trial_ends_at->isFuture();
-	}
+    /**
+     * is the subscription paid
+     *
+     * @return bool
+     */
+    public function paid(): bool
+    {
+        $currentPeriod = $this->currentPeriod();
+        if (null === $currentPeriod) {
+            $currentPeriod = $this->lastPeriod();
+            if (null !== $currentPeriod && !$currentPeriod->start->isFuture()) {
+                $currentPeriod = null;
+            }
+        }
 
-	/**
-	 * is the subscription paid
-	 *
-	 * @return bool
-	 */
-	public function paid()
-	{
-		$currentPeriod = $this->currentPeriod();
-		if (null === $currentPeriod) {
-			$currentPeriod = $this->lastPeriod();
-			if (null !== $currentPeriod && ! $currentPeriod->start->isFuture())
-				$currentPeriod = null;
-		}
-
-		return null !== $currentPeriod && $currentPeriod->isPaid();
-	}
+        return null !== $currentPeriod && $currentPeriod->isPaid();
+    }
 }

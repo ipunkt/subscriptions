@@ -7,17 +7,17 @@
  */
 interface SubscriptionSubscriber
 {
-	/**
-	 * returns the subscriber id
-	 *
-	 * @return int
-	 */
-	public function getSubscriberId();
+    /**
+     * returns the subscriber id
+     *
+     * @return int
+     */
+    public function getSubscriberId(): int;
 
-	/**
-	 * returns the subscriber model name
-	 *
-	 * @return string
-	 */
-	public function getSubscriberModel();
+    /**
+     * returns the subscriber model name
+     *
+     * @return string
+     */
+    public function getSubscriberModel(): string;
 }

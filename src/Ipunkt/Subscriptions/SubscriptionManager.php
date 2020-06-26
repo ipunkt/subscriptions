@@ -17,223 +17,232 @@ use Ipunkt\Subscriptions\Subscription\SubscriptionRepository;
  */
 class SubscriptionManager
 {
-	/**
-	 * plan repository
-	 *
-	 * @var PlanRepository
-	 */
-	private $planRepository;
+    /**
+     * plan repository
+     *
+     * @var PlanRepository
+     */
+    private $planRepository;
 
-	/**
-	 * subscriptions repository
-	 *
-	 * @var SubscriptionRepository
-	 */
-	private $subscriptionRepository;
+    /**
+     * subscriptions repository
+     *
+     * @var SubscriptionRepository
+     */
+    private $subscriptionRepository;
 
-	/**
-	 * current plan
-	 *
-	 * @var Subscription
-	 */
-	private $subscription;
+    /**
+     * current plan
+     *
+     * @var Subscription
+     */
+    private $subscription;
 
-	/**
-	 * @param PlanRepository $planRepository
-	 * @param SubscriptionRepository $subscriptionRepository
-	 */
-	public function __construct(PlanRepository $planRepository, SubscriptionRepository $subscriptionRepository)
-	{
-		$this->planRepository = $planRepository;
-		$this->subscriptionRepository = $subscriptionRepository;
-	}
+    /**
+     * @param PlanRepository $planRepository
+     * @param SubscriptionRepository $subscriptionRepository
+     */
+    public function __construct(PlanRepository $planRepository, SubscriptionRepository $subscriptionRepository)
+    {
+        $this->planRepository = $planRepository;
+        $this->subscriptionRepository = $subscriptionRepository;
+    }
 
-	/**
-	 * does a subscription already exists
-	 *
-	 * @param SubscriptionSubscriber $subscriber
-	 *
-	 * @return bool
-	 */
-	public function exists(SubscriptionSubscriber $subscriber)
-	{
-		return $this->plan($subscriber, false) !== null;
-	}
+    /**
+     * does a subscription already exists
+     *
+     * @param SubscriptionSubscriber $subscriber
+     *
+     * @return bool
+     */
+    public function exists(SubscriptionSubscriber $subscriber): bool
+    {
+        return $this->plan($subscriber, false) !== null;
+    }
 
-	/**
-	 * returns all configured plans
-	 *
-	 * @return array|Plan[]|Collection
-	 */
-	public function plans()
-	{
-		return $this->planRepository->all();
-	}
+    /**
+     * returns all configured plans
+     *
+     * @return array|Plan[]|Collection
+     */
+    public function plans()
+    {
+        return $this->planRepository->all();
+    }
 
-	/**
-	 * returns the current plan
-	 *
-	 * @param SubscriptionSubscriber $subscriber
-	 * @param bool $useDefaultPlan
-	 *
-	 * @return Plan|null
-	 */
-	public function plan(SubscriptionSubscriber $subscriber, $useDefaultPlan = true)
-	{
-		$subscription = $this->current($subscriber);
-		if (null === $subscription) {
-			return $useDefaultPlan
-				? $this->planRepository->defaultPlan()
-				: null;
-		}
+    /**
+     * returns the current plan
+     *
+     * @param SubscriptionSubscriber $subscriber
+     * @param bool $useDefaultPlan
+     *
+     * @return Plan|null
+     */
+    public function plan(SubscriptionSubscriber $subscriber, $useDefaultPlan = true): ?Plan
+    {
+        $subscription = $this->current($subscriber);
+        if (null === $subscription) {
+            return $useDefaultPlan
+                ? $this->planRepository->defaultPlan()
+                : null;
+        }
 
-		$plan = $subscription->plan;
+        $plan = $subscription->plan;
 
-		return $this->planRepository->find($plan);
-	}
+        return $this->planRepository->find($plan);
+    }
 
-	/**
-	 * tries to find a plan
-	 *
-	 * @param string $plan
-	 *
-	 * @return Plan|null
-	 */
-	public function findPlan($plan)
-	{
-		return $this->planRepository->find($plan);
-	}
+    /**
+     * tries to find a plan
+     *
+     * @param string $plan
+     *
+     * @return Plan|null
+     */
+    public function findPlan($plan): ?Plan
+    {
+        return $this->planRepository->find($plan);
+    }
 
-	/**
-	 * feature check on the current subscription
-	 *
-	 * @param SubscriptionSubscriber $subscriber
-	 * @param string $feature
-	 * @param null|int $value
-	 *
-	 * @return bool
-	 */
-	public function can(SubscriptionSubscriber $subscriber, $feature, $value = null)
-	{
-		$currentPlan = $this->plan($subscriber);
-		if (null === $currentPlan)
-			return false;
+    /**
+     * feature check on the current subscription
+     *
+     * @param SubscriptionSubscriber $subscriber
+     * @param string $feature
+     * @param null|int $value
+     *
+     * @return bool
+     */
+    public function can(SubscriptionSubscriber $subscriber, $feature, $value = null): bool
+    {
+        $currentPlan = $this->plan($subscriber);
+        if (null === $currentPlan) {
+            return false;
+        }
 
-		return $currentPlan->can($feature, $value);
-	}
+        return $currentPlan->can($feature, $value);
+    }
 
-	/**
-	 * returns a feature when it exists on the current plan or null when missing
-	 *
-	 * @param SubscriptionSubscriber $subscriber
-	 * @param string $feature
-	 *
-	 * @return \Ipunkt\Subscriptions\Plans\Benefit|null
-	 */
-	public function feature(SubscriptionSubscriber $subscriber, $feature)
-	{
-		$currentPlan = $this->plan($subscriber);
-		if (null === $currentPlan)
-			return null;
+    /**
+     * returns a feature when it exists on the current plan or null when missing
+     *
+     * @param SubscriptionSubscriber $subscriber
+     * @param string $feature
+     *
+     * @return \Ipunkt\Subscriptions\Plans\Benefit|null
+     */
+    public function feature(SubscriptionSubscriber $subscriber, $feature)
+    {
+        $currentPlan = $this->plan($subscriber);
+        if (null === $currentPlan) {
+            return null;
+        }
 
-		return $currentPlan->feature($feature);
-	}
+        return $currentPlan->feature($feature);
+    }
 
-	/**
-	 * returns current subscription for subscriber
-	 *
-	 * @param SubscriptionSubscriber $subscriber
-	 *
-	 * @return Subscription|null
-	 */
-	public function current(SubscriptionSubscriber $subscriber)
-	{
-		if ($this->subscription === null || ! $this->subscription->isSubscribedTo($subscriber)) {
-			$subscription = $this->subscriptionRepository->findBySubscriber($subscriber);
-			if (null === $subscription)
-				return null;
+    /**
+     * returns current subscription for subscriber
+     *
+     * @param SubscriptionSubscriber $subscriber
+     *
+     * @return Subscription|null
+     */
+    public function current(SubscriptionSubscriber $subscriber): ?Subscription
+    {
+        if ($this->subscription === null || !$this->subscription->isSubscribedTo($subscriber)) {
+            $subscription = $this->subscriptionRepository->findBySubscriber($subscriber);
+            if (null === $subscription) {
+                return null;
+            }
 
-			$this->subscription = $subscription;
-		}
+            $this->subscription = $subscription;
+        }
 
-		return $this->subscription;
-	}
+        return $this->subscription;
+    }
 
-	/**
-	 * returns all subscriptions for a subscriber
-	 *
-	 * @param SubscriptionSubscriber $subscriber
-	 *
-	 * @return array|Subscription[]|\Illuminate\Database\Eloquent\Collection
-	 */
-	public function all(SubscriptionSubscriber $subscriber)
-	{
-		return $this->subscriptionRepository->allBySubscriber($subscriber);
-	}
+    /**
+     * returns all subscriptions for a subscriber
+     *
+     * @param SubscriptionSubscriber $subscriber
+     *
+     * @return array|Subscription[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function all(SubscriptionSubscriber $subscriber)
+    {
+        return $this->subscriptionRepository->allBySubscriber($subscriber);
+    }
 
-	/**
-	 * creates a subscription with plan and payment option
-	 *
-	 * @param string|Plan $plan
-	 * @param string|PaymentOption $paymentOption
-	 * @param SubscriptionSubscriber $subscriber
-	 *
-	 * @return Subscription
-	 */
-	public function create($plan, $paymentOption, SubscriptionSubscriber $subscriber)
-	{
-		if ( ! $plan instanceof Plan)
-			$plan = $this->findPlan($plan);
+    /**
+     * creates a subscription with plan and payment option
+     *
+     * @param string|Plan $plan
+     * @param string|PaymentOption $paymentOption
+     * @param SubscriptionSubscriber $subscriber
+     *
+     * @return Subscription
+     */
+    public function create($plan, $paymentOption, SubscriptionSubscriber $subscriber): ?Subscription
+    {
+        if (!$plan instanceof Plan) {
+            $plan = $this->findPlan($plan);
+        }
 
-		if ( ! $paymentOption instanceof PaymentOption)
-			$paymentOption = $plan->findPaymentOption($paymentOption);
+        if (!$paymentOption instanceof PaymentOption) {
+            $paymentOption = $plan->findPaymentOption($paymentOption);
+        }
 
-		return $this->subscriptionRepository->create($plan, $paymentOption, $subscriber);
-	}
+        return $this->subscriptionRepository->create($plan, $paymentOption, $subscriber);
+    }
 
-	/**
-	 * is the current period subscription paid
-	 *
-	 * @param SubscriptionSubscriber $subscriber
-	 *
-	 * @return bool
-	 */
-	public function paid(SubscriptionSubscriber $subscriber)
-	{
-		$this->current($subscriber);
+    /**
+     * is the current period subscription paid
+     *
+     * @param SubscriptionSubscriber $subscriber
+     *
+     * @return bool
+     */
+    public function paid(SubscriptionSubscriber $subscriber): bool
+    {
+        $this->current($subscriber);
 
-		if (null === $this->subscription)
-			return false;
+        if (null === $this->subscription) {
+            return false;
+        }
 
-		return $this->subscription->paid();
-	}
+        return $this->subscription->paid();
+    }
 
-	/**
-	 * returns only selectable plans
-	 *
-	 * @param SubscriptionSubscriber $subscriber
-	 *
-	 * @return array|Collection|Plan[]
-	 */
-	public function selectablePlans(SubscriptionSubscriber $subscriber)
-	{
-		$plans = $this->plans();
+    /**
+     * returns only selectable plans
+     *
+     * @param SubscriptionSubscriber $subscriber
+     *
+     * @return array|Collection|Plan[]
+     */
+    public function selectablePlans(SubscriptionSubscriber $subscriber)
+    {
+        $plans = $this->plans();
 
-		$breakingPlans = $plans->filter(function (Plan $plan) {
-			return $plan->subscriptionBreak() > 0;
-		});
+        $breakingPlans = $plans->filter(function (Plan $plan) {
+            return $plan->subscriptionBreak() > 0;
+        });
 
-		if ($breakingPlans->isEmpty())
-			return $plans;
+        if ($breakingPlans->isEmpty()) {
+            return $plans;
+        }
 
-		$subscriptions = $this->subscriptionRepository->allBySubscriberForPlans($subscriber, $breakingPlans->lists('id'));
-		foreach ($subscriptions as $subscription) {
-			/** @var Plan $breakingPlan */
-			$breakingPlan = $breakingPlans->get($subscription->plan);
-			if ($subscription->subscription_ends_at->addDays($breakingPlan->subscriptionBreak())->isFuture())
-				$plans->forget($subscription->plan);
-		}
+        $subscriptions = $this->subscriptionRepository->allBySubscriberForPlans($subscriber,
+            $breakingPlans->lists('id'));
+        foreach ($subscriptions as $subscription) {
+            /** @var Plan $breakingPlan */
+            $breakingPlan = $breakingPlans->get($subscription->plan);
+            if ($subscription->subscription_ends_at->addDays($breakingPlan->subscriptionBreak())->isFuture()) {
+                $plans->forget($subscription->plan);
+            }
+        }
 
-		return $plans;
-	}
+        return $plans;
+    }
 }
