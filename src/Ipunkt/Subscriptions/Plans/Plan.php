@@ -169,9 +169,9 @@ class Plan implements Arrayable
      *
      * @return Benefit|null
      */
-    public function feature($feature)
+    public function feature(string $feature): ?Benefit
     {
-        return $this->benefits()->first(function ($key, Benefit $benefit) use ($feature) {
+        return $this->benefits()->first(function (Benefit $benefit) use ($feature) {
             return $benefit->feature() === strtoupper($feature);
         });
     }
@@ -241,7 +241,7 @@ class Plan implements Arrayable
     {
         $paymentOption = strtoupper($paymentOption);
 
-        return $this->paymentOptions()->first(function ($index, PaymentOption $p) use ($paymentOption) {
+        return $this->paymentOptions()->first(function (PaymentOption $p) use ($paymentOption) {
             if ($p->payment() == $paymentOption) {
                 return $p;
             }
