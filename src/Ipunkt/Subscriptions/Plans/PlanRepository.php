@@ -54,7 +54,7 @@ class PlanRepository
      */
     public function find($id): ?Plan
     {
-        return $this->plans->first(function ($key, $value) use ($id) {
+        return $this->plans->first(function ($value, $key) use ($id) {
             return strtoupper($id) === $key;
         });
     }
